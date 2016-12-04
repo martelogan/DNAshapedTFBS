@@ -41,7 +41,7 @@ def tffm_train_arg_parsing(subparsers):
     help_str += '-2 HelT2 ProT2 MGW2 Roll2'
     help_str += ' (note that we assume such an order)'
     parser_t.add_argument('-2', '--2ndorder', required=False, type=str,
-                          dest='second_shape', action='store', nargs=4,
+                          dest='second_shape', action='store', nargs=3,
                           default=[], help=help_str)
     parser_t.add_argument('-n', '--scaled', required=False, dest='scaled',
                           action='store_true', default=False,
@@ -87,7 +87,7 @@ def tffm_apply_arg_parsing(subparsers):
     help_str += '-2 HelT2 ProT2 MGW2 Roll2'
     help_str += ' (note that we assume such an order)'
     parser_a.add_argument('-2', '--2ndorder', required=False, type=str,
-                          dest='second_shape', action='store', nargs=4,
+                          dest='second_shape', action='store', nargs=3,
                           default=[], help=help_str)
     parser_a.add_argument('-n', '--scaled', required=False, dest='scaled',
                           action='store_true', default=False,
@@ -99,7 +99,7 @@ def tffm_apply_arg_parsing(subparsers):
                           help=help_str)
     help_str = 'Probability threshold to predict a hit (default=0.5).'
     parser_a.add_argument('-v', '--threshold', required=False,
-                          dest='threshold', action='store', default=0.5,
+                          dest='threshold', action='store', default=0.0,
                           type=float, help=help_str)
     parser_a.set_defaults(func=tffm_apply_classifier)
 
@@ -142,7 +142,7 @@ def pssm_train_arg_parsing(subparsers):
     help_str += '-2 HelT2 ProT2 MGW2 Roll2'
     help_str += ' (note that we assume such an order)'
     parser_t.add_argument('-2', '--2ndorder', required=False, type=str,
-                          dest='second_shape', action='store', nargs=4,
+                          dest='second_shape', action='store', nargs=3,
                           default=[], help=help_str)
     parser_t.add_argument('-n', '--scaled', required=False, dest='scaled',
                           action='store_true', default=False,
@@ -190,7 +190,7 @@ def pssm_apply_arg_parsing(subparsers):
     help_str += '-2 HelT2 ProT2 MGW2 Roll2'
     help_str += ' (note that we assume such an order)'
     parser_a.add_argument('-2', '--2ndorder', required=False, type=str,
-                          dest='second_shape', action='store', nargs=4,
+                          dest='second_shape', action='store', nargs=3,
                           default=[], help=help_str)
     parser_a.add_argument('-n', '--scaled', required=False, dest='scaled',
                           action='store_true', default=False,
@@ -202,7 +202,7 @@ def pssm_apply_arg_parsing(subparsers):
                           help=help_str)
     help_str = 'Probability threshold to predict a hit (default=0.5).'
     parser_a.add_argument('-v', '--threshold', required=False,
-                          dest='threshold', action='store', default=0.5,
+                          dest='threshold', action='store', default=0.0,
                           type=float, help=help_str)
     parser_a.set_defaults(func=pssm_apply_classifier)
 
@@ -245,7 +245,7 @@ def binary_train_arg_parsing(subparsers):
     help_str += '-2 HelT2 ProT2 MGW2 Roll2'
     help_str += ' (note that we assume such an order)'
     parser_t.add_argument('-2', '--2ndorder', required=False, type=str,
-                          dest='second_shape', action='store', nargs=4,
+                          dest='second_shape', action='store', nargs=3,
                           default=[], help=help_str)
     parser_t.add_argument('-n', '--scaled', required=False, dest='scaled',
                           action='store_true', default=False,
@@ -293,7 +293,7 @@ def binary_apply_arg_parsing(subparsers):
     help_str += '-2 HelT2 ProT2 MGW2 Roll2'
     help_str += ' (note that we assume such an order)'
     parser_a.add_argument('-2', '--2ndorder', required=False, type=str,
-                          dest='second_shape', action='store', nargs=4,
+                          dest='second_shape', action='store', nargs=3,
                           default=[], help=help_str)
     parser_a.add_argument('-n', '--scaled', required=False, dest='scaled',
                           action='store_true', default=False,
@@ -305,7 +305,7 @@ def binary_apply_arg_parsing(subparsers):
                           help=help_str)
     help_str = 'Probability threshold to predict a hit (default=0.5).'
     parser_a.add_argument('-v', '--threshold', required=False,
-                          dest='threshold', action='store', default=0.5,
+                          dest='threshold', action='store', default=0.0,
                           type=float, help=help_str)
     parser_a.set_defaults(func=binary_apply_classifier)
 

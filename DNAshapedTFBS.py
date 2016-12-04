@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2.7
 #*-* coding: utf-8 *-*
 
 """ Train and apply PSSM/TFFM/4-bits + DNAshape classifiers. """
@@ -6,9 +6,10 @@
 import os
 PATH = os.path.dirname(os.path.realpath(__file__))
 import sys
+print('/Users/Fred/Documents/chipseq/DNAshapedTFBS'.format(PATH))
 # Local environment
 # TODO: Test if TFFM is installed instead of using local env.
-sys.path.append('{0}/../TFFM/'.format(PATH))
+sys.path.append('/Users/Fred/Documents/chipseq/DNAshapedTFBS/TFFM')
 from sklearn.externals import joblib
 from argparsing import *
 from the_constants import BWTOOL, DNASHAPEINTER
@@ -26,19 +27,22 @@ def find_pssm_hits(pssm, seq_file):
     import tffm_module
     from hit_module import HIT
     hits = []
+    count = 0
     for record in Bio.SeqIO.parse(seq_file, "fasta", generic_dna):
+        #see how many records it sees directly reading from FASTA
+        count = count +1
+        print(count)
         record.seq.alphabet = unambiguousDNA()
         scores = [(pos, ((score - pssm.min) / (pssm.max - pssm.min)))
                   for pos, score in pssm.search(record.seq, pssm.min) if not
                   math.isnan(score)]
-        if scores:
-            pos_maxi, maxi = max(scores, key=itemgetter(1))
-            strand = "+"
-            if pos_maxi < 0:
-                strand = "-"
-                pos_maxi = pos_maxi + len(record.seq)
-            hits.append(HIT(record, pos_maxi + 1, pos_maxi + pssm.length,
-                            strand, maxi))
+        pos_maxi, maxi = max(scores, key=itemgetter(1))
+        strand = "+"
+        if pos_maxi < 0:
+            strand = "-"
+            pos_maxi = pos_maxi + len(record.seq)
+        hits.append(HIT(record, pos_maxi + 1, pos_maxi + pssm.length, strand,
+                        maxi))
     return hits
 
 
@@ -84,6 +88,7 @@ def make_predictions(clf, tests, hits, thr):
     predictions = {'peak_id': [], 'start': [], 'end': [], 'strand': [],
                    'sequence': [], 'proba': []}
     for indx, proba in enumerate(clf.predict_proba(tests)):
+        #IIIITTTTTTS FUCKING HERE!!!!!!!!!!
         if proba[1] >= thr:
             hit = hits[indx]
             if hit:
@@ -202,7 +207,7 @@ def pssm_train_classifier(argu):
     fg_hits = find_pssm_hits(pssm, argu.fg_fasta)
     bg_hits = find_pssm_hits(pssm, argu.bg_fasta)
     train_classifier(fg_hits, bg_hits, argu)
-
+#SPLIT HERE, CHANGE THE ARGU FOR EACH SO THAT ITS CORRECT FOR NAME, SIZE ETC...
 
 def binary_train_classifier(argu):
     """ Train a 4-bits + DNA shape classifier. """
