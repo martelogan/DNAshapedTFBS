@@ -6,7 +6,19 @@
 import os
 PATH = os.path.dirname(os.path.realpath(__file__))
 import sys
-print('/Users/Fred/Documents/chipseq/DNAshapedTFBS'.format(PATH))
+
+
+class InternalArgu:
+    def __init__(self, fg_fasta, fg_bed, bg_fasta, bg_bed, output, in_bed, in_fasta):
+        self.fg_fasta = fg_fasta
+        self.fg_bed = fg_bed
+        self.bg_fasta = bg_fasta
+        self.bg_bed = bg_bed
+        self.output = output
+        self.in_bed = in_bed
+        self.in_fasta = in_fasta
+
+
 # Local environment
 # TODO: Test if TFFM is installed instead of using local env.
 sys.path.append('/Users/Fred/Documents/chipseq/DNAshapedTFBS/TFFM')
@@ -17,7 +29,7 @@ from shapes import *
 from utilities import *
 
 
-def find_pssm_hits(pssm, seq_file):
+def find_pssm_hits(pssm, seq_file, isForeground):
     """ Predict hits in sequences using a PSSM. """
     from operator import itemgetter
     import math
@@ -29,20 +41,21 @@ def find_pssm_hits(pssm, seq_file):
     hits = []
     count = 0
     for record in Bio.SeqIO.parse(seq_file, "fasta", generic_dna):
-        #see how many records it sees directly reading from FASTA
-        count = count +1
+        # see how many records it sees directly reading from FASTA
+        count = count + 1
         print(count)
         record.seq.alphabet = unambiguousDNA()
         scores = [(pos, ((score - pssm.min) / (pssm.max - pssm.min)))
                   for pos, score in pssm.search(record.seq, pssm.min) if not
                   math.isnan(score)]
-        pos_maxi, maxi = max(scores, key=itemgetter(1))
+        # pos_i, score_i = max(scores, key=itemgetter(1)) if isForeground else min(scores, key=itemgetter(1))
+        pos_i, score_i = max(scores, key=itemgetter(1))
         strand = "+"
-        if pos_maxi < 0:
+        if pos_i < 0:
             strand = "-"
-            pos_maxi = pos_maxi + len(record.seq)
-        hits.append(HIT(record, pos_maxi + 1, pos_maxi + pssm.length, strand,
-                        maxi))
+            pos_i = pos_i + len(record.seq)
+        hits.append(HIT(record, pos_i + 1, pos_i + pssm.length, strand,
+                        score_i))
     return hits
 
 
@@ -124,7 +137,7 @@ def apply_classifier(hits, argu, bool4bits=False):
     # bwtool calls and I/O, 2) doing all sequences as one batch but means that
     # we need to associate back probas to hits. I choose 2) to reduce I/O.
 
-    hits_shapes = get_shapes(hits, argu.in_bed, argu.first_shape,
+    hits_shapes = get_shapes(hits, argu.fg_bed, argu.first_shape,
             argu.second_shape, argu.extension, argu.scaled)
     classifier = joblib.load(argu.classifier)
     if bool4bits:
@@ -191,6 +204,73 @@ def train_classifier(fg_hits, bg_hits, argu, bool4bits=False):
     joblib.dump(classifier, '{0}.pkl'.format(argu.output))
 
 
+def kFoldClassification(data, labels, classifier, cv):
+    import numpy as np
+    from scipy import interp
+    import matplotlib.pyplot as plt
+    from itertools import cycle
+
+    from sklearn import datasets
+    from sklearn.ensemble import GradientBoostingClassifier
+    from sklearn.metrics import roc_curve, auc
+    from sklearn.model_selection import StratifiedKFold
+    """ Run Kfold classification on a machine learning classifier """
+
+    # y-axis (dependent variable) = sensitivity
+    mean_tpr = 0.0
+    # x-axis (independent variable) = specificity
+    mean_fpr = np.linspace(0, 1, 100)
+    # line colors
+    colors = cycle(['indigo', 'blue', 'darkorange'])
+    # line width
+    lw = 2
+
+    #convert to numpy array
+    data = np.array(data)
+    labels = np.array(labels)
+
+    # Perform and plot ROC curve for each fold
+    i = 0
+    for (train, test), color in zip(cv.split(data, labels), colors):
+        print "\n\ntrain\n\n", train
+        print "\n\ntest\n\n", test
+        print "\n\nDATA\n\n", data[train]
+        print "\n\nLABELS\n\n", labels[train]
+        probas_ = classifier.fit(data[train], labels[train]).predict_proba(data[test])
+        # Compute ROC curve and area the curve
+        print "\n\nPROBAS_\n\n", probas_[:, 1]
+        print "\n\nLABELS\n\n", labels[test]
+        fpr, tpr, thresholds = roc_curve(labels[test], probas_[:, 1])
+        print "\n\nfpr\n\n", fpr
+        print "\n\ntpr\n\n", tpr
+        print "\n\nthresholds\n\n", thresholds
+        mean_tpr += interp(mean_fpr, fpr, tpr)
+        mean_tpr[0] = 0.0
+        roc_auc = auc(fpr, tpr)
+        print "\n\nmean_tpr\n\n", mean_tpr
+        print "\n\nroc_auc\n\n", roc_auc
+        plt.plot(fpr, tpr, lw=lw, color=color,
+                 label='ROC fold %d (area = %0.2f)' % (i, roc_auc))
+        i += 1
+
+    plt.plot([0, 1], [0, 1], linestyle='--', lw=lw, color='k',
+             label='Luck')
+
+    mean_tpr /= cv.get_n_splits(data, labels)
+    mean_tpr[-1] = 1.0
+    mean_auc = auc(mean_fpr, mean_tpr)
+    plt.plot(mean_fpr, mean_tpr, color='g', linestyle='--',
+             label='Mean ROC (area = %0.2f)' % mean_auc, lw=lw)
+
+    plt.xlim([-0.05, 1.05])
+    plt.ylim([-0.05, 1.05])
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('Receiver operating characteristic example')
+    plt.legend(loc="lower right")
+    plt.show()
+
+
 def tffm_train_classifier(argu):
     """ Train a TFFM + DNA shape classifier. """
     fg_hits = find_tffm_hits(argu.tffm_file, argu.fg_fasta, argu.tffm_kind)
@@ -220,9 +300,74 @@ def binary_train_classifier(argu):
     train_classifier(fg_hits, bg_hits, argu, True)
 
 
+def pssm_trainAndApply_classifier(argu):
+    from sklearn.ensemble import GradientBoostingClassifier
+    from sklearn.model_selection import StratifiedKFold
+    # Build internal args
+    # internalArgu = InternalArgu(argu.fg_fasta, argu.fg_bed, argu.bg_fasta, argu.bg_bed, argu.output, argu.fg_bed, argu.fg_fasta)
+
+    # ********************
+    # TRAIN CLASSIFIER
+    # ********************
+    if argu.jasparid:
+        pssm = get_jaspar_pssm(argu.jasparid)
+    else:
+        pssm = get_jaspar_pssm(argu.jasparfile, False)
+    fg_hits = find_pssm_hits(pssm, argu.fg_fasta, True)
+    bg_hits = find_pssm_hits(pssm, argu.bg_fasta, False)
+    fg_shapes = get_shapes(fg_hits, argu.fg_bed, argu.first_shape,
+        argu.second_shape, argu.extension, argu.scaled)
+    bg_shapes = get_shapes(bg_hits, argu.bg_bed, argu.first_shape,
+        argu.second_shape, argu.extension, argu.scaled)
+    """ Fit the classifier to the training data. """
+    foreground_data = combine_hits_shapes(fg_hits, fg_shapes)
+    background_data = combine_hits_shapes(bg_hits, bg_shapes)
+    fg_len = len(foreground_data)
+    bg_len = len(background_data)
+    if(fg_len > bg_len):
+        foreground_data = foreground_data[0:bg_len]
+    elif(bg_len > fg_len):
+        background_data = background_data[0:fg_len]
+    data, classification = construct_classifier_input(foreground_data, background_data)
+
+    # Machine learning estimator
+    classifier = GradientBoostingClassifier()
+
+    # Cross-validation parameter
+    cv = StratifiedKFold(n_splits=2)
+
+    kFoldClassification(data, classification, classifier, cv)
+
+    # *******************
+    # APPLY CLASSIFIER - FOREGROUND
+    # ********************
+
+    # hits = find_pssm_hits(pssm, internalArgu.in_fasta, True)
+    # if hits:
+    #     apply_classifier(hits, internalArgu)
+    # else:
+    #     with open(internalArgu.output, 'w') as stream:
+    #         stream.write('No hit predicted\n')
+
+    # ********************
+    # APPLY CLASSIFIER - BACKGROUND
+    # ********************
+
+    # SET
+    # internalArgu.in_fasta = internalArgu.bg_fasta
+    # internalArgu.in_bed = internalArgu.bg_bed
+
+    # hits = find_pssm_hits(pssm, internalArgu.in_fasta, False)
+    # if hits:
+    #     apply_classifier(hits, internalArgu)
+    # else:
+    #     with open(internalArgu.output, 'w') as stream:
+    #         stream.write('No hit predicted\n')
+
 ##############################################################################
 #                               MAIN
 ##############################################################################
 if __name__ == "__main__":
     arguments = arg_parsing()
     arguments.func(arguments)
+

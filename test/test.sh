@@ -35,12 +35,12 @@ roll2=$hg19/hg19.Roll.2nd.wig.bw;
 #     -o DNAshapedTFFM_d_classifier -t detailed \
 #     -1 $helt $mgw $prot $roll -2 $helt2 $mgw2 $prot2 $roll2 -n;
 
-echo "Training a PSSM + DNA shape classifier.";
-time python2.7 ../DNAshapedTFBS.py trainPSSM -f MA0595.1.pfm \
-    -i foreground/train.fa -I foreground/train.bed \
-    -b background/train.fa -B background/train.bed \
-    -o DNAshapedPSSM_classifier \
-    -1 $helt $mgw $prot $roll -2 $helt2 $mgw2 $roll2 -n;
+# echo "Training a PSSM + DNA shape classifier.";
+# time python2.7 ../DNAshapedTFBS.py trainPSSM -f MA0595.1.pfm \
+#     -i foreground/train.fa -I foreground/train.bed \
+#     -b background/train.fa -B background/train.bed \
+#     -o DNAshapedPSSM_classifier \
+#     -1 $helt $mgw $prot $roll -2 $helt2 $mgw2 $roll2 -n;
 
 # echo "Training a 4-bits + DNA shape classifier.";
 # time python2.7 ../DNAshapedTFBS.py train4bits -f MA0635.1.pfm \
@@ -61,11 +61,11 @@ time python2.7 ../DNAshapedTFBS.py trainPSSM -f MA0595.1.pfm \
 #     -c DNAshapedTFFM_d_classifier.pkl -o DNAshapedTFFM_d_fg_predictions.txt \
 #     -1 $helt $mgw $prot $roll -2 $helt2 $mgw2 $prot2 $roll2 -n -t detailed;
 
-echo "Applying the trained PSSM + DNA shape classifier on foreground sequences.";
-time python2.7 ../DNAshapedTFBS.py applyPSSM -f MA0595.1.pfm \
-    -i foreground/test.fa -I foreground/test.bed \
-    -c DNAshapedPSSM_classifier.pkl -o DNAshapedPSSM_fg_predictions.txt \
-    -1 $helt $mgw $prot $roll -2 $helt2 $mgw2 $roll2 -n;
+# echo "Applying the trained PSSM + DNA shape classifier on foreground sequences.";
+# time python2.7 ../DNAshapedTFBS.py applyPSSM -f MA0595.1.pfm \
+#     -i foreground/test.fa -I foreground/test.bed \
+#     -c DNAshapedPSSM_classifier.pkl -o DNAshapedPSSM_fg_predictions.txt \
+#     -1 $helt $mgw $prot $roll -2 $helt2 $mgw2 $roll2 -n;
 
 # echo "Applying the trained 4-bits + DNA shape classifier on foreground sequences.";
 # time python2.7 ../DNAshapedTFBS.py apply4bits -f MA0635.1.pfm \
@@ -85,14 +85,22 @@ time python2.7 ../DNAshapedTFBS.py applyPSSM -f MA0595.1.pfm \
 #     -c DNAshapedTFFM_d_classifier.pkl -o DNAshapedTFFM_d_bg_predictions.txt \
 #     -1 $helt $mgw $prot $roll -2 $helt2 $mgw2 $prot2 $roll2 -n -t detailed;
 
-echo "Applying the trained PSSM + DNA shape classifier on background sequences.";
-time python2.7 ../DNAshapedTFBS.py applyPSSM -f MA0595.1.pfm \
-    -i background/test.fa -I background/test.bed \
-    -c DNAshapedPSSM_classifier.pkl -o DNAshapedPSSM_bg_predictions.txt \
-    -1 $helt $mgw $prot $roll -2 $helt2 $mgw2 $roll2 -n;
+# echo "Applying the trained PSSM + DNA shape classifier on background sequences.";
+# time python2.7 ../DNAshapedTFBS.py applyPSSM -f MA0595.1.pfm \
+#     -i background/test.fa -I background/test.bed \
+#     -c DNAshapedPSSM_classifier.pkl -o DNAshapedPSSM_bg_predictions.txt \
+#     -1 $helt $mgw $prot $roll -2 $helt2 $mgw2 $roll2 -n;
 
 # echo "Applying the trained 4-bits + DNA shape classifier on background sequences.";
 # time python2.7 ../DNAshapedTFBS.py apply4bits -f MA0635.1.pfm \
 #     -i background/test.fa -I background/test.bed \
 #     -c DNAshaped4bits_classifier.pkl -o DNAshaped4bits_bg_predictions.txt \
 #     -1 $helt $mgw $prot $roll -2 $helt2 $mgw2 $prot2 $roll2 -n;
+
+echo "Training and applying a PSSM + DNA shape classifier.";
+time python ../DNAshapedTFBS.py trainAndApplyPSSM -f MA0595.1.pfm \
+    -i foreground/train.fa -I foreground/train.bed \
+    -b background/train.fa -B background/train.bed \
+    -o DNAshapedPSSM_classifier \
+    -1 $helt $mgw $prot $roll -2 $helt2 $mgw2 $roll2 -n;
+

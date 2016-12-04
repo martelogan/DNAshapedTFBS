@@ -1,3 +1,6 @@
 *.swp
 *.pyc
 .dir_bash_history
+561_execution/background/*
+561_execution/foreground/*
+561_execution/PFM/*
