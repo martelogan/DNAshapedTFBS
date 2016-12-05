@@ -6,6 +6,8 @@
 import os
 PATH = os.path.dirname(os.path.realpath(__file__))
 import sys
+from Bio import trie
+from Bio import triefind
 
 
 class InternalArgu:
@@ -27,6 +29,81 @@ from argparsing import *
 from the_constants import BWTOOL, DNASHAPEINTER
 from shapes import *
 from utilities import *
+
+
+# HELPER FUNCTIONS FOR 561-proj
+
+
+def seq_splice(seq, w_start, w_end, ext_size):
+    """  returns start and end index in spliced sequence """
+    seq_length = len(seq)
+    pos_start, pos_end = 0, 0
+    if(w_start >= ext_size):
+        if(w_end < (seq_length - ext_size)):  # (w_start >= L) and (w_end < len(S) - L)
+            pos_start = w_start - ext_size
+            pos_end = w_end + ext_size
+        else:  # (w_start >= L) and (w_end >= len(S) - L)
+            # (w_start - ext_size) + (ext_size - (*))
+            # = w_start - (2 * ext_size) - (*)
+            pos_start = w_start - (2 * ext_size) - (seq_length - w_end - 1)
+            pos_end = seq_length - 1
+    else:  # (w_start < L) and (w_end < len(S) - L)
+        pos_start = 0
+        pos_end = w_end + (2 * ext_size) - w_start
+    return pos_start, pos_end
+
+
+def extended_flex_evals(hits, isEval_f):
+    """ evaluate promoter region of hits """
+    from itertools import product
+    import Bio.SeqIO
+    from Bio.Seq import Seq
+    from Bio.Alphabet import generic_dna
+    from Bio.Alphabet.IUPAC import IUPACUnambiguousDNA as unambiguousDNA
+    from Bio.Alphabet.IUPAC import IUPACUnambiguousDNA as unambiguousDNA
+    # Build trie structure to evaluate promoter regions
+    tr = trie.trie()
+    if (isEval_f):  # eval function trie
+        pvals = [0.755783741,0.760332075,0.781922225,0.814647316,0.832768156,0.872842632,0.895834135,0.922193691,0.925889854,0.944594069,0.963676135,0.96753856,0.968506582,0.987084135,0.988071713,0.994017964,0.997004496,1.013084867,1.010050167,1.017145322,1.025315121,1.027367803,1.031485504,1.040810774,1.070365308,1.078962574,1.094174284,1.112934254,1.14339282,1.191246217,1.199614194,1.214096283]
+        tri_nuc_classes = ['AAT', 'AAA', 'CCA', 'AAC', 'ACT', 'CCG', 'ATC', 'AAG', 'CGC', 'AGG', 'GAA', 'ACG', 'ACC', 'GAC', 'CCC', 'ACA', 'CGA', 'GGA', 'CAA', 'AGC', 'GTA', 'AGA', 'CTC', 'CAC', 'TAA', 'GCA', 'CTA', 'GCC', 'ATG', 'CAG', 'ATA', 'TCA']
+        for i in xrange(0, len(tri_nuc_classes)):
+            pval = pvals[i]
+            word = tri_nuc_classes[i]
+            word_seq_record = Seq(word, generic_dna)
+            compl_word = word_seq_record.reverse_complement().seq
+            tr[word] = pval
+            tr[compl_word] = pval
+    else:  # counts trie
+        # Enumerate all trinucleotide keys
+        alphabet = unambiguousDNA()
+        trinucleotides = [''.join(i) for i in product(alphabet.letters, repeat = 3)]
+        tr = trie.trie()
+        for key in trinucleotides:
+            tr[key] = 0
+    # Iteratively evaluate promoter regions of hits
+    flex_evals = []
+    for hit in hits:
+        if hit:
+            hit_seq = hit.seq_record.seq
+            ext_start, ext_end = seq_splice(hit_seq, hit.start, hit.end, 50)
+            ext_seq = hit_seq[ext_start:ext_end + 1].upper()
+            if isEval_f: # using eval function
+                eval_result = 0.0
+                for word in triefind.find(ext_seq, tr):
+                    eval_result += tr[word[0]]
+                flex_evals.append([eval_result])
+            else: # using counts trie
+                counts = []
+                for word in triefind.find(ext_seq, tr):
+                    tr[word[0]] += 1
+                tri_nuc_classes = []
+                for i in xrange(0, len(tri_nuc_classes)):
+                    word = tri_nuc_classes[i]
+                    word_seq_record = Seq(word, generic_dna)
+                    compl_word = word_seq_record.reverse_complement().seq
+                    counts.append(tr[word] + tr[compl_word])
+                flex_evals.append(counts)
+    return flex_evals
 
 
 def find_pssm_hits(pssm, seq_file, isForeground):
@@ -287,7 +364,7 @@ def pssm_train_classifier(argu):
     fg_hits = find_pssm_hits(pssm, argu.fg_fasta)
     bg_hits = find_pssm_hits(pssm, argu.bg_fasta)
     train_classifier(fg_hits, bg_hits, argu)
-#SPLIT HERE, CHANGE THE ARGU FOR EACH SO THAT ITS CORRECT FOR NAME, SIZE ETC...
+
 
 def binary_train_classifier(argu):
     """ Train a 4-bits + DNA shape classifier. """
@@ -303,8 +380,6 @@ def binary_train_classifier(argu):
 def pssm_trainAndApply_classifier(argu):
     from sklearn.ensemble import GradientBoostingClassifier
     from sklearn.model_selection import StratifiedKFold
-    # Build internal args
-    # internalArgu = InternalArgu(argu.fg_fasta, argu.fg_bed, argu.bg_fasta, argu.bg_bed, argu.output, argu.fg_bed, argu.fg_fasta)
 
     # ********************
     # TRAIN CLASSIFIER
@@ -319,9 +394,11 @@ def pssm_trainAndApply_classifier(argu):
         argu.second_shape, argu.extension, argu.scaled)
     bg_shapes = get_shapes(bg_hits, argu.bg_bed, argu.first_shape,
         argu.second_shape, argu.extension, argu.scaled)
-    """ Fit the classifier to the training data. """
-    foreground_data = combine_hits_shapes(fg_hits, fg_shapes)
-    background_data = combine_hits_shapes(bg_hits, bg_shapes)
+    # boolean below causes flex to use eval function
+    fg_flex = extended_flex_evals(fg_hits, True)
+    bg_flex = extended_flex_evals(bg_hits, True)
+    foreground_data = construct_HitShapeFlex_vector(fg_hits, fg_shapes, fg_flex)
+    background_data = construct_HitShapeFlex_vector(bg_hits, bg_shapes, bg_flex)
     fg_len = len(foreground_data)
     bg_len = len(background_data)
     if(fg_len > bg_len):
@@ -364,10 +441,12 @@ def pssm_trainAndApply_classifier(argu):
     #     with open(internalArgu.output, 'w') as stream:
     #         stream.write('No hit predicted\n')
 
+
 ##############################################################################
 #                               MAIN
 ##############################################################################
+
+
 if __name__ == "__main__":
     arguments = arg_parsing()
     arguments.func(arguments)
-

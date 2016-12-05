@@ -94,6 +94,28 @@ def combine_hits_shapes(hits, shapes, extension=0, binary_encoding=False):
                 comb.append([hit.score])
     return comb
 
+
+def construct_HitShapeFlex_vector(hits, shapes, flex_evals):
+    """ Construct feature vector for classification """
+    comb = []
+    index = -1
+    for hit in hits:
+        if hit:
+            index += 1
+            if shapes:
+                hit_shapes = []
+                for indx in xrange(len(shapes)):
+                    hit_shapes += shapes[indx][index]
+                if (    (len(hit_shapes) ==
+                            len(shapes) * (len(hit) + 2 * extension)
+                        )
+                    ):
+                        # comb.append([hit.score] + hit_shapes)
+                        # NOTE: flex_evals[index] is always a 1d array
+                        comb.append(hit_shapes + flex_evals[index])
+    return comb
+
+
 def get_shapes(hits, bed_file, first_shape, second_shape, extension=0,
         scaled=False):
     """ Retrieve DNAshape feature values for the hits. """
