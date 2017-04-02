@@ -139,7 +139,8 @@ def find_pssm_hits(pssm, seq_file, isForeground):
                         score_i))
     return hits
 
-def kFoldClassification(data, labels, classifier, cv, argu):
+
+def kFoldClassification(data, labels, classifier, cv, argu, pssmLength, isEval_f):
     import numpy as np
     from scipy import interp
     import matplotlib.pyplot as plt
@@ -150,33 +151,39 @@ def kFoldClassification(data, labels, classifier, cv, argu):
     from sklearn.ensemble import GradientBoostingClassifier
     from sklearn.metrics import roc_curve, auc, precision_recall_curve
     from sklearn.model_selection import StratifiedKFold
+
     """ Run Kfold classification on a machine learning classifier """
 
-    #######
-    # GRAPH THINGS
-    #######
+    # CONVERT TO NUMPY ARRAYS PRIOR TO EXECUTION
+    data = np.array(data)
+    labels = np.array(labels)
+
+    #############################################
+    # # ******** K-fold ROC + PRC's *************
+    # # ********   BEGIN-SECTION    *************
+    # ###########################################
+
+    ################
+    # GRAPH PREP
+    ################
     # line colors
     colors = cycle(['indigo', 'blue', 'darkorange', 'yellow', 'green'])
     # line width
     lw = 1
 
-    #######
+    ################
     # PRC VALUES
-    #######
+    ################
     reversed_mean_precision = 0.0
     mean_recall = np.linspace(0, 1, 100)
 
-    #######
+    ################
     # ROC VALUES
-    #######
+    ################
     # y-axis (dependent variable) = sensitivity
     mean_tpr = 0.0
     # x-axis (independent variable) = specificity
     mean_fpr = np.linspace(0, 1, 100)
-
-    # convert to numpy array
-    data = np.array(data)
-    labels = np.array(labels)
 
     # Initialize the two plots
     fig = plt.figure()
@@ -257,12 +264,62 @@ def kFoldClassification(data, labels, classifier, cv, argu):
     fig.savefig(argu.output+"_roc_prc.png", bbox_inches='tight')
 
     # SAVE SOME VALUES TO CSV
-    #protein, avg AUPRC, avg AUROC
+    # protein, avg AUPRC, avg AUROC
     fields=[argu.output,str(mean_auc_pr),str(mean_auc)]
     with open(r'AUPRC_AUROC.csv', 'a') as f:
                 writer = csv.writer(f)
                 writer.writerow(fields)
 
+    #############################################
+    # # ******** K-fold ROC + PRC's *************
+    # # ********   END-SECTION    *************
+    # ###########################################
+
+   
+    #############################################
+    # # ******** FEATURE IMPORTANCE *************
+    # # ********   BEGIN-SECTION    *************
+    # ###########################################
+
+    classifier.fit(data, labels)
+    importances = classifier.feature_importances_
+    # for n_estimators, loss_k = classifier.estimators_
+    # std = np.std([tree.feature_importances_ for tree in n_estimators],
+    #             axis=0)
+    indices = np.argsort(importances)[::-1]
+
+    # Print the feature ranking
+    print("Feature ranking:")
+
+
+    shape_feature_names = ['HelT', 'ProT', 'MGW', 'Roll', 'HelT2', 'MGW2', 'Roll2']
+    motifLength = pssmLength
+    print "\n\nOur shape features:", shape_feature_names
+    print "\n\nOur motif length:", motifLength
+
+    featureNames = []
+    for shapeName in shape_feature_names:
+        featureNames += [shapeName] * motifLength
+
+    if (isEval_f):  # we used the eval function feature
+        flexEval = ['flexEval']
+        featureNames += flexEval
+    else:  # we used the trinucleotide counts directly
+        tri_nuc_classes = ['AAT', 'AAA', 'CCA', 'AAC', 'ACT', 'CCG', 'ATC', 'AAG', 'CGC', 'AGG', 'GAA', 'ACG', 'ACC', 'GAC', 'CCC', 'ACA', 'CGA', 'GGA', 'CAA', 'AGC', 'GTA', 'AGA', 'CTC', 'CAC', 'TAA',    'GCA', 'CTA', 'GCC', 'ATG', 'CAG', 'ATA', 'TCA']
+        featureNames += tri_nuc_classes
+    
+    for f in range(data.shape[1]):
+        # SAVE SOME VALUES TO CSV
+        # protein, featureName, importance
+        fields = [argu.output, featureNames[indices[f]-1], importances[indices[f]]]
+        with open(r'FEATURE_IMPORTANCES.csv', 'a') as f:
+            writer = csv.writer(f)
+            writer.writerow(fields)
+
+    #############################################
+    # # ******** FEATURE IMPORTANCE *************
+    # # ********   END-SECTION    *************
+    # ###########################################         
 
 
 def construct_classifier_input(foreground, background):
@@ -463,8 +520,9 @@ def pssm_trainAndApply_classifier(argu):
     bg_shapes = get_shapes(bg_hits, argu.bg_bed, argu.first_shape,
         argu.second_shape, argu.extension, argu.scaled)
     # boolean below causes flex to use eval function
-    fg_flex = extended_flex_evals(fg_hits, False)
-    bg_flex = extended_flex_evals(bg_hits, False)
+    isEval_f = False
+    fg_flex = extended_flex_evals(fg_hits, isEval_f)
+    bg_flex = extended_flex_evals(bg_hits, isEval_f)
     foreground_data = construct_HitShapeFlex_vector(fg_hits, fg_shapes, fg_flex)
     background_data = construct_HitShapeFlex_vector(bg_hits, bg_shapes, bg_flex)
     fg_len = len(foreground_data)
@@ -480,12 +538,14 @@ def pssm_trainAndApply_classifier(argu):
 
     # Cross-validation parameter
     cv = StratifiedKFold(n_splits=5)
+    pssmLength = pssm.length
 
-    kFoldClassification(data, classification, classifier, cv, argu)
+    # Cross-validation parameter
+    kFoldClassification(data, classification, classifier, cv, argu, pssmLength, isEval_f)
 
-    # *******************
+    # *******************************
     # APPLY CLASSIFIER - FOREGROUND
-    # ********************
+    # *******************************
 
     # hits = find_pssm_hits(pssm, internalArgu.in_fasta, True)
     # if hits:
@@ -494,9 +554,9 @@ def pssm_trainAndApply_classifier(argu):
     #     with open(internalArgu.output, 'w') as stream:
     #         stream.write('No hit predicted\n')
 
-    # ********************
+    # *******************************
     # APPLY CLASSIFIER - BACKGROUND
-    # ********************
+    # *******************************
 
     # SET
     # internalArgu.in_fasta = internalArgu.bg_fasta
@@ -518,4 +578,5 @@ def pssm_trainAndApply_classifier(argu):
 if __name__ == "__main__":
     arguments = arg_parsing()
     arguments.func(arguments)
+
 

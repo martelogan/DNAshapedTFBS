@@ -1,5 +1,10 @@
 *.swp
 *.pyc
+*.DS_Store
+*.png
+*.csv
+._*
+TFFM/
 .dir_bash_history
 561_execution/background/*
 561_execution/foreground/*
