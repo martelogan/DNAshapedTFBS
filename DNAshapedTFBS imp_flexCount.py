@@ -173,6 +173,7 @@ def kFoldClassification(data, labels, classifier, cv, argu, pssmLength):
     print("Feature ranking:")
 
 
+
     shape_feature_names = ['HelT', 'ProT', 'MGW', 'Roll', 'HelT2', 'MGW2', 'Roll2']
     motifLength = pssmLength
     print "\n\nOur shape features:", shape_feature_names
@@ -182,16 +183,15 @@ def kFoldClassification(data, labels, classifier, cv, argu, pssmLength):
     for shapeName in shape_feature_names:
         featureNames += [shapeName] * motifLength
 
-    # tri_nuc_classes = ['AAT', 'AAA', 'CCA', 'AAC', 'ACT', 'CCG', 'ATC', 'AAG', 'CGC', 'AGG', 'GAA', 'ACG', 'ACC', 'GAC', 'CCC', 'ACA', 'CGA', 'GGA', 'CAA', 'AGC', 'GTA', 'AGA', 'CTC', 'CAC', 'TAA', 'GCA', 'CTA', 'GCC', 'ATG', 'CAG', 'ATA', 'TCA']
-    flexEval = ['flexEval']
-    featureNames += flexEval
+    tri_nuc_classes = ['AAT', 'AAA', 'CCA', 'AAC', 'ACT', 'CCG', 'ATC', 'AAG', 'CGC', 'AGG', 'GAA', 'ACG', 'ACC', 'GAC', 'CCC', 'ACA', 'CGA', 'GGA', 'CAA', 'AGC', 'GTA', 'AGA', 'CTC', 'CAC', 'TAA', 'GCA', 'CTA', 'GCC', 'ATG', 'CAG', 'ATA', 'TCA']
+    featureNames += tri_nuc_classes
 
     
     for f in range(data.shape[1]):
         # SAVE SOME VALUES TO CSV
         # featureNum, importance
         fields = [featureNames[indices[f]-1], importances[indices[f]]]
-        with open(r'IMPORTANCE_NFIC_FLEXEVAL.csv', 'a') as f:
+        with open(r'IMPORTANCE_NFIC.csv', 'a') as f:
             writer = csv.writer(f)
             writer.writerow(fields)         
 
@@ -396,8 +396,8 @@ def pssm_trainAndApply_classifier(argu):
     bg_shapes = get_shapes(bg_hits, argu.bg_bed, argu.first_shape,
         argu.second_shape, argu.extension, argu.scaled)
     # boolean below causes flex to use eval function
-    fg_flex = extended_flex_evals(fg_hits, True)
-    bg_flex = extended_flex_evals(bg_hits, True)
+    fg_flex = extended_flex_evals(fg_hits, False)
+    bg_flex = extended_flex_evals(bg_hits, False)
     foreground_data = construct_HitShapeFlex_vector(fg_hits, fg_shapes, fg_flex)
     background_data = construct_HitShapeFlex_vector(bg_hits, bg_shapes, bg_flex)
     fg_len = len(foreground_data)
