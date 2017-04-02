@@ -109,12 +109,12 @@ def construct_HitShapeFlex_vector(hits, shapes, flex_evals):
                 for indx in xrange(len(shapes)):
                     hit_shapes += shapes[indx][index]
                 if (    (len(hit_shapes) ==
-                            len(shapes) * (len(hit) + 2 * extension)
+                            len(shapes) * (len(hit))
                         )
                     ):
-                        # comb.append([hit.score] + hit_shapes)
-                        # NOTE: flex_evals[index] is always a 1d array
-                        comb.append(hit_shapes + flex_evals[index])
+                    # comb.append([hit.score] + hit_shapes)
+                    # NOTE: flex_evals[index] is always a 1d array
+                    comb.append(hit_shapes + flex_evals[index])
     return comb
 
 

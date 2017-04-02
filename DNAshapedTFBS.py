@@ -11,7 +11,7 @@ from Bio import triefind
 
 # Local environment
 # TODO: Test if TFFM is installed instead of using local env.
-sys.path.append('/Users/Fred/Documents/chipseq/DNAshapedTFBS/TFFM')
+sys.path.append('{0}/TFFM/'.format(PATH))
 from sklearn.externals import joblib
 from argparsing import *
 from the_constants import BWTOOL, DNASHAPEINTER
@@ -27,17 +27,21 @@ def seq_splice(seq, w_start, w_end, ext_size):
     seq_length = len(seq)
     pos_start, pos_end = 0, 0
     if(w_start >= ext_size):
-        if(w_end < (seq_length - ext_size)):  # (w_start >= L) and (w_end < len(S) - L)
+        if(w_end < (seq_length - ext_size)):  # (w_start >= L) and (w_end <= len(S) - L)
             pos_start = w_start - ext_size
             pos_end = w_end + ext_size
-        else:  # (w_start >= L) and (w_end >= len(S) - L)
-            # (w_start - ext_size) + (ext_size - (*))
+        else:  # (w_start >= L) and (w_end > len(S) - L)
+            # (w_start) - (ext_size + (ext_size - (*))
             # = w_start - (2 * ext_size) - (*)
             pos_start = w_start - (2 * ext_size) - (seq_length - w_end - 1)
             pos_end = seq_length - 1
     else:  # (w_start < L) and (w_end < len(S) - L)
         pos_start = 0
         pos_end = w_end + (2 * ext_size) - w_start
+    if (pos_start < 0):
+        pos_start = 0
+    if (pos_end > seq_length - 1):
+        pos_end = seq_length - 1
     return pos_start, pos_end
 
 
@@ -50,46 +54,57 @@ def extended_flex_evals(hits, isEval_f):
     from Bio.Alphabet.IUPAC import IUPACUnambiguousDNA as unambiguousDNA
     from Bio.Alphabet.IUPAC import IUPACUnambiguousDNA as unambiguousDNA
     # Build trie structure to evaluate promoter regions
-    tr = trie.trie()
+    tri_nuc_classes = ['AAT', 'AAA', 'CCA', 'AAC', 'ACT', 'CCG', 'ATC', 'AAG', 'CGC', 'AGG', 'GAA', 'ACG', 'ACC', 'GAC', 'CCC', 'ACA', 'CGA', 'GGA', 'CAA', 'AGC', 'GTA', 'AGA', 'CTC', 'CAC', 'TAA', 'GCA', 'CTA', 'GCC', 'ATG', 'CAG', 'ATA', 'TCA']
     if (isEval_f):  # eval function trie
+        tr_eval = trie.trie()
         pvals = [0.755783741,0.760332075,0.781922225,0.814647316,0.832768156,0.872842632,0.895834135,0.922193691,0.925889854,0.944594069,0.963676135,0.96753856,0.968506582,0.987084135,0.988071713,0.994017964,0.997004496,1.013084867,1.010050167,1.017145322,1.025315121,1.027367803,1.031485504,1.040810774,1.070365308,1.078962574,1.094174284,1.112934254,1.14339282,1.191246217,1.199614194,1.214096283]
-        tri_nuc_classes = ['AAT', 'AAA', 'CCA', 'AAC', 'ACT', 'CCG', 'ATC', 'AAG', 'CGC', 'AGG', 'GAA', 'ACG', 'ACC', 'GAC', 'CCC', 'ACA', 'CGA', 'GGA', 'CAA', 'AGC', 'GTA', 'AGA', 'CTC', 'CAC', 'TAA', 'GCA', 'CTA', 'GCC', 'ATG', 'CAG', 'ATA', 'TCA']
         for i in xrange(0, len(tri_nuc_classes)):
             pval = pvals[i]
             word = tri_nuc_classes[i]
             word_seq_record = Seq(word, generic_dna)
-            compl_word = word_seq_record.reverse_complement().seq
-            tr[word] = pval
-            tr[compl_word] = pval
+            compl_word = str(word_seq_record.reverse_complement())
+            tr_eval[word] = pval
+            tr_eval[compl_word] = pval
     else:  # counts trie
         # Enumerate all trinucleotide keys
         alphabet = unambiguousDNA()
         trinucleotides = [''.join(i) for i in product(alphabet.letters, repeat = 3)]
-        tr = trie.trie()
-        for key in trinucleotides:
-            tr[key] = 0
     # Iteratively evaluate promoter regions of hits
     flex_evals = []
     for hit in hits:
         if hit:
             hit_seq = hit.seq_record.seq
+            # print "Sequence length:", len(hit_seq)
+            # print "(hit_start, hit_end) =", (hit.start, hit.end)
             ext_start, ext_end = seq_splice(hit_seq, hit.start, hit.end, 50)
-            ext_seq = hit_seq[ext_start:ext_end + 1].upper()
+            # print "Hit_seq:", hit_seq, "(start, end) =", (ext_start, ext_end)
+            ext_seq = str(hit_seq[ext_start:ext_end + 1].upper())
+            # print "Ext_seq:", ext_seq
             if isEval_f: # using eval function
                 eval_result = 0.0
-                for word in triefind.find(ext_seq, tr):
-                    eval_result += tr[word[0]]
+                for word in triefind.find(ext_seq, tr_eval):
+                    eval_result += tr_eval[word[0]]
+                print eval_result
                 flex_evals.append([eval_result])
             else: # using counts trie
                 counts = []
-                for word in triefind.find(ext_seq, tr):
-                    tr[word[0]] += 1
-                tri_nuc_classes = []
+                tr_count = trie.trie()
+                for key in trinucleotides:
+                    tr_count[key] = 0
+                for word in triefind.find(ext_seq, tr_count):
+                    tr_count[word[0]] += 1
                 for i in xrange(0, len(tri_nuc_classes)):
                     word = tri_nuc_classes[i]
                     word_seq_record = Seq(word, generic_dna)
-                    compl_word = word_seq_record.reverse_complement().seq
-                    counts.append(tr[word] + tr[compl_word])
+                    compl_word = str(word_seq_record.reverse_complement())
+                    # print "Sequence:", ext_seq
+                    # print "Word:", word, ", count:", tr_count[word]
+                    # print "Complement:", compl_word, ", count: ", tr_count[compl_word]
+                    # Here?
+                    count = tr_count[word] + tr_count[compl_word]
+                    # print "Count:", count
+                    counts.append(count)
+                # print "Counts:", counts
                 flex_evals.append(counts)
     return flex_evals
 
@@ -141,7 +156,7 @@ def kFoldClassification(data, labels, classifier, cv, argu):
     # GRAPH THINGS
     #######
     # line colors
-    colors = cycle(['indigo', 'blue', 'darkorange'])
+    colors = cycle(['indigo', 'blue', 'darkorange', 'yellow', 'green'])
     # line width
     lw = 1
 
@@ -248,45 +263,6 @@ def kFoldClassification(data, labels, classifier, cv, argu):
                 writer = csv.writer(f)
                 writer.writerow(fields)
 
-
-def pssm_trainAndApply_classifier(argu):
-    from sklearn.ensemble import GradientBoostingClassifier
-    from sklearn.model_selection import StratifiedKFold
-    # Build internal args
-    # internalArgu = InternalArgu(argu.fg_fasta, argu.fg_bed, argu.bg_fasta, argu.bg_bed, argu.output, argu.fg_bed, argu.fg_fasta)
-
-    # ********************
-    # TRAIN CLASSIFIER
-    # ********************
-    if argu.jasparid:
-        pssm = get_jaspar_pssm(argu.jasparid)
-    else:
-        pssm = get_jaspar_pssm(argu.jasparfile, False)
-    fg_hits = find_pssm_hits(pssm, argu.fg_fasta, True)
-    bg_hits = find_pssm_hits(pssm, argu.bg_fasta, False)
-    fg_shapes = get_shapes(fg_hits, argu.fg_bed, argu.first_shape,
-        argu.second_shape, argu.extension, argu.scaled)
-    bg_shapes = get_shapes(bg_hits, argu.bg_bed, argu.first_shape,
-        argu.second_shape, argu.extension, argu.scaled)
-    """ Fit the classifier to the training data. """
-    foreground_data = combine_hits_shapes(fg_hits, fg_shapes)
-    background_data = combine_hits_shapes(bg_hits, bg_shapes)
-    fg_len = len(foreground_data)
-    bg_len = len(background_data)
-    if(fg_len > bg_len):
-        foreground_data = foreground_data[0:bg_len]
-    elif(bg_len > fg_len):
-        background_data = background_data[0:fg_len]
-    data, classification = construct_classifier_input(foreground_data, background_data)
-
-    # Machine learning estimator
-    classifier = GradientBoostingClassifier()
-
-    # Cross-validation parameter
-    # Make sure if you change this you also change the line in kfoldC
-    cv = StratifiedKFold(n_splits=2)
-
-    kFoldClassification(data, classification, classifier, cv, argu)
 
 
 def construct_classifier_input(foreground, background):
@@ -487,8 +463,8 @@ def pssm_trainAndApply_classifier(argu):
     bg_shapes = get_shapes(bg_hits, argu.bg_bed, argu.first_shape,
         argu.second_shape, argu.extension, argu.scaled)
     # boolean below causes flex to use eval function
-    fg_flex = extended_flex_evals(fg_hits, True)
-    bg_flex = extended_flex_evals(bg_hits, True)
+    fg_flex = extended_flex_evals(fg_hits, False)
+    bg_flex = extended_flex_evals(bg_hits, False)
     foreground_data = construct_HitShapeFlex_vector(fg_hits, fg_shapes, fg_flex)
     background_data = construct_HitShapeFlex_vector(bg_hits, bg_shapes, bg_flex)
     fg_len = len(foreground_data)
@@ -503,9 +479,9 @@ def pssm_trainAndApply_classifier(argu):
     classifier = GradientBoostingClassifier()
 
     # Cross-validation parameter
-    cv = StratifiedKFold(n_splits=2)
+    cv = StratifiedKFold(n_splits=5)
 
-    kFoldClassification(data, classification, classifier, cv)
+    kFoldClassification(data, classification, classifier, cv, argu)
 
     # *******************
     # APPLY CLASSIFIER - FOREGROUND
@@ -542,3 +518,4 @@ def pssm_trainAndApply_classifier(argu):
 if __name__ == "__main__":
     arguments = arg_parsing()
     arguments.func(arguments)
+
