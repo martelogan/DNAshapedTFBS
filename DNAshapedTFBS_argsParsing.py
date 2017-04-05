@@ -1,10 +1,10 @@
-from DNAshapedTFBS import tffm_train_classifier
-from DNAshapedTFBS import pssm_train_classifier
-from DNAshapedTFBS import binary_train_classifier
-from DNAshapedTFBS import tffm_apply_classifier
-from DNAshapedTFBS import pssm_apply_classifier
-from DNAshapedTFBS import binary_apply_classifier
-from DNAshapedTFBS import pssm_trainAndApply_classifier
+from DNAshapedTFBS_classification import tffm_train_classifier
+from DNAshapedTFBS_classification import pssm_train_classifier
+from DNAshapedTFBS_classification import binary_train_classifier
+from DNAshapedTFBS_classification import tffm_apply_classifier
+from DNAshapedTFBS_classification import pssm_apply_classifier
+from DNAshapedTFBS_classification import binary_apply_classifier
+from DNAshapedTFBS_classification import pssm_train_and_apply_classifier
 
 
 def tffm_train_arg_parsing(subparsers):
@@ -114,11 +114,11 @@ def pssm_train_arg_parsing(subparsers):
     help_str = 'JASPAR ID corresponding to the TF '
     help_str += 'binding profile to be used.'
     jaspar_grp.add_argument('-j', '--jaspar', type=str, dest='jasparid',
-            action='store', help=help_str)
+                            action='store', help=help_str)
     help_str = 'JASPAR file containing the TF binding profile in the '
     help_str += 'JASPAR format.'
     jaspar_grp.add_argument('-f', '--jasparfile', type=str, dest='jasparfile',
-            action='store', help=help_str)
+                            action='store', help=help_str)
     help_str = 'Input fasta file containing the foreground sequences.'
     parser_t.add_argument('-i', '--fg_fasta', required=True, type=str,
                           dest='fg_fasta', action='store', help=help_str)
@@ -165,11 +165,11 @@ def pssm_apply_arg_parsing(subparsers):
     help_str = 'JASPAR ID corresponding to the TF '
     help_str += 'binding profile to be used.'
     jaspar_grp.add_argument('-j', '--jaspar', type=str, dest='jasparid',
-            action='store', help=help_str)
+                            action='store', help=help_str)
     help_str = 'JASPAR file containing the TF binding profile in the '
     help_str += 'JASPAR format.'
     jaspar_grp.add_argument('-f', '--jasparfile', type=str, dest='jasparfile',
-            action='store', help=help_str)
+                            action='store', help=help_str)
     help_str = 'Input fasta file containing the sequences.'
     parser_a.add_argument('-i', '--input_fasta', required=True, type=str,
                           dest='in_fasta', action='store', help=help_str)
@@ -217,11 +217,11 @@ def pssm_train_and_apply_arg_parsing(subparsers):
     help_str = 'JASPAR ID corresponding to the TF '
     help_str += 'binding profile to be used.'
     jaspar_grp.add_argument('-j', '--jaspar', type=str, dest='jasparid',
-            action='store', help=help_str)
+                            action='store', help=help_str)
     help_str = 'JASPAR file containing the TF binding profile in the '
     help_str += 'JASPAR format.'
     jaspar_grp.add_argument('-f', '--jasparfile', type=str, dest='jasparfile',
-            action='store', help=help_str)
+                            action='store', help=help_str)
     help_str = 'Input fasta file containing the foreground sequences.'
     parser_t.add_argument('-i', '--fg_fasta', required=True, type=str,
                           dest='fg_fasta', action='store', help=help_str)
@@ -257,7 +257,7 @@ def pssm_train_and_apply_arg_parsing(subparsers):
     parser_t.add_argument('-e', '--extension', required=False, type=int,
                           dest='extension', action='store', default=0,
                           help=help_str)
-    parser_t.set_defaults(func=pssm_trainAndApply_classifier)
+    parser_t.set_defaults(func=pssm_train_and_apply_classifier)
 
 
 def binary_train_arg_parsing(subparsers):
@@ -268,11 +268,11 @@ def binary_train_arg_parsing(subparsers):
     help_str = 'JASPAR ID corresponding to the TF '
     help_str += 'binding profile to be used.'
     jaspar_grp.add_argument('-j', '--jaspar', type=str, dest='jasparid',
-            action='store', help=help_str)
+                            action='store', help=help_str)
     help_str = 'JASPAR file containing the TF binding profile in the '
     help_str += 'JASPAR format.'
     jaspar_grp.add_argument('-f', '--jasparfile', type=str, dest='jasparfile',
-            action='store', help=help_str)
+                            action='store', help=help_str)
     help_str = 'Input fasta file containing the foreground sequences.'
     parser_t.add_argument('-i', '--fg_fasta', required=True, type=str,
                           dest='fg_fasta', action='store', help=help_str)
@@ -319,11 +319,11 @@ def binary_apply_arg_parsing(subparsers):
     help_str = 'JASPAR ID corresponding to the TF '
     help_str += 'binding profile to be used.'
     jaspar_grp.add_argument('-j', '--jaspar', type=str, dest='jasparid',
-            action='store', help=help_str)
+                            action='store', help=help_str)
     help_str = 'JASPAR file containing the TF binding profile in the '
     help_str += 'JASPAR format.'
     jaspar_grp.add_argument('-f', '--jasparfile', type=str, dest='jasparfile',
-            action='store', help=help_str)
+                            action='store', help=help_str)
     help_str = 'Input fasta file containing the sequences.'
     parser_a.add_argument('-i', '--input_fasta', required=True, type=str,
                           dest='in_fasta', action='store', help=help_str)

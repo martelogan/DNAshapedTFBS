@@ -18,7 +18,6 @@ def plot_heatmap(feat_imp, infile, secorder, min_val, max_val):
     import pandas as pd
     import seaborn as sns
     import matplotlib.pyplot as plt
-    import matplotlib
     if secorder:
         len_motif = (len(feat_imp) - 1) / 8
         dico = {'Importance': list([feat_imp[0]]) * len_motif +
@@ -74,7 +73,7 @@ def arg_parsing():
     Plot the heatmap corresponding to the feature importance associated to the
     classifier(s) provided.
     '''
-    parser = argparse.ArgumentParser(description=descr, 
+    parser = argparse.ArgumentParser(description=descr,
             formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('-c', '--classif', required=True, nargs='+',
             dest='classif_files', action='store',

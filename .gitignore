@@ -5,6 +5,8 @@
 *.csv
 ._*
 TFFM/
+ghmm/
+./idea/
 .dir_bash_history
 561_execution/background/*
 561_execution/foreground/*
