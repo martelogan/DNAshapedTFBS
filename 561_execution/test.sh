@@ -20,7 +20,7 @@ declare -a arr=("HSF1")
 for i in "${arr[@]}"
 do
    echo "Training a PSSM + DNA shape classifier for protein $i.";
-	time python2.7 ../DNAshapedTFBS_classification.py PSSM_ALL -f $(echo $(ls -1 PFM/"$i"/*.pfm)) \
+	time python2.7 ../DNAshapedTFBS_classification.py PSSM_ALL -f $(echo $(ls -1 PFMs/"$i"/*.pfm)) \
     -i foreground/fasta/"$i".fa -I foreground/bed/"$i" \
     -b background/fasta/"$i".fa -B background/bed/"$i" \
     -o "$i" \
