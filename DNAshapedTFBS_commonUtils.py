@@ -120,6 +120,26 @@ def get_jaspar_pssm(jaspar, bool_id=True):
     return motif.pssm
 
 
+# FEATURE VECTOR I/O
+
+def output_data_vectors(argu, feature_names, data, labels):
+    import csv
+
+    # SAVE SOME VALUES TO CSV
+    # protein, feature_vector, label
+    csv_title = argu.output + '_DATA_INSTANCES.csv'
+    with open(r''+csv_title, 'a') as f:
+        writer = csv .writer(f)
+        headers = ['Protein'] + feature_names + ['Classification']
+        writer.writerow(headers)
+        i = 0
+        for data_instance in data:
+            writer = csv.writer(f)
+            fields = [argu.output] + data_instance + [labels[i]]
+            i += 1
+            writer.writerow(fields)
+
+
 # PREDICTIONS I/O
 
 
@@ -285,10 +305,10 @@ def output_k_fold_prc_roc_results(argu, mean_auprc, mean_auroc):
     # SAVE SOME VALUES TO CSV
     # protein, avg AUPRC, avg AUROC
     fields = [argu.output, str(mean_auprc), str(mean_auroc)]
-    with open(r'AUPRC_AUROC.csv', 'a') as f:
+    csv_title = 'AUPRC_AUROC.csv'
+    with open(r''+csv_title, 'a') as f:
         writer = csv.writer(f)
         writer.writerow(fields)
-
 
 # FEATURE IMPORTANCE I/O
 
@@ -324,6 +344,7 @@ def construct_feature_names_array(argu, motif_length, shape_feature_names):
 
 
 def output_classifier_feature_importances(argu, classifier, data, labels, feature_names):
+    import datetime as dt
     import numpy as np
     import csv
     classifier.fit(data, labels)
@@ -336,9 +357,11 @@ def output_classifier_feature_importances(argu, classifier, data, labels, featur
     # NOTE: data.shape[1] below is a call to numpy for the dimension m of our n x m data matrix
     for row_number in range(data.shape[1]):
         # SAVE SOME VALUES TO CSV
-        # protein, featureName, importance
-        fields = [argu.output, feature_names[indices[row_number] - 1], importances[indices[row_number]]]
-        with open(r'FEATURE_IMPORTANCES.csv', 'a') as feature_importances_file:
+        date_hour = '{}'.format(dt.datetime.today().day) + ' - ' + '{}'.format(dt.datetime.today().hour)
+        # date-hour, protein, featureName, importance
+        fields = [date_hour, argu.output, feature_names[indices[row_number] - 1], importances[indices[row_number]]]
+        with open(r'FEATURE_IMPORTANCES.c'
+                  r'sv', 'a') as feature_importances_file:
             writer = csv.writer(feature_importances_file)
             writer.writerow(fields)
 

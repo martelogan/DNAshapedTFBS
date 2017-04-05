@@ -170,6 +170,8 @@ def pssm_train_and_apply_classifier(argu):
     shape_feature_names = ['HelT', 'ProT', 'MGW', 'Roll', 'HelT2', 'MGW2', 'Roll2']
     feature_names = construct_feature_names_array(argu, len(fg_hits[0]), shape_feature_names)
 
+    output_data_vectors(argu, feature_names, data, labels)
+
     # Machine learning estimator
     classifier = GradientBoostingClassifier()
 

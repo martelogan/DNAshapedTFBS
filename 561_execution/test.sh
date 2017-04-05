@@ -24,5 +24,6 @@ do
     -i foreground/fasta/"$i".fa -I foreground/bed/"$i" \
     -b background/fasta/"$i".fa -B background/bed/"$i" \
     -o "$i" \
+    --feature_vector_type 2 \
     -1 $helt $mgw $prot $roll -2 $helt2 $mgw2 $roll2 -n;
 done
