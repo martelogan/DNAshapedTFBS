@@ -37,13 +37,13 @@ def tffm_train_arg_parsing(subparsers):
     help_str += '-1 HelT ProT MGW Roll'
     help_str += ' (note that we assume such an order)'
     parser_t.add_argument('-1', '--1storder', required=True, type=str,
-                          dest='first_shape', action='store', nargs=4,
+                          dest='shape_first_order', action='store', nargs=4,
                           help=help_str)
     help_str = 'List of 2nd-order bigWig files as\n'
     help_str += '-2 HelT2 ProT2 MGW2 Roll2'
     help_str += ' (note that we assume such an order)'
     parser_t.add_argument('-2', '--2ndorder', required=False, type=str,
-                          dest='second_shape', action='store', nargs=4,
+                          dest='shape_second_order', action='store', nargs=4,
                           default=[], help=help_str)
     parser_t.add_argument('-n', '--scaled', required=False, dest='scaled',
                           action='store_true', default=False,
@@ -83,13 +83,13 @@ def tffm_apply_arg_parsing(subparsers):
     help_str += '-1 HelT ProT MGW Roll'
     help_str += ' (note that we assume such an order)'
     parser_a.add_argument('-1', '--1storder', required=True, type=str,
-                          dest='first_shape', action='store', nargs=4,
+                          dest='shape_first_order', action='store', nargs=4,
                           help=help_str)
     help_str = 'List of 2nd-order bigWig files as: '
     help_str += '-2 HelT2 ProT2 MGW2 Roll2'
     help_str += ' (note that we assume such an order)'
     parser_a.add_argument('-2', '--2ndorder', required=False, type=str,
-                          dest='second_shape', action='store', nargs=4,
+                          dest='shape_second_order', action='store', nargs=4,
                           default=[], help=help_str)
     parser_a.add_argument('-n', '--scaled', required=False, dest='scaled',
                           action='store_true', default=False,
@@ -138,13 +138,13 @@ def pssm_train_arg_parsing(subparsers):
     help_str += '-1 HelT ProT MGW Roll'
     help_str += ' (note that we assume such an order)'
     parser_t.add_argument('-1', '--1storder', required=True, type=str,
-                          dest='first_shape', action='store', nargs=4,
+                          dest='shape_first_order', action='store', nargs=4,
                           help=help_str)
     help_str = 'List of 2nd-order bigWig files as\n'
     help_str += '-2 HelT2 ProT2 MGW2 Roll2'
     help_str += ' (note that we assume such an order)'
     parser_t.add_argument('-2', '--2ndorder', required=False, type=str,
-                          dest='second_shape', action='store', nargs=4,
+                          dest='shape_second_order', action='store', nargs=4,
                           default=[], help=help_str)
     parser_t.add_argument('-n', '--scaled', required=False, dest='scaled',
                           action='store_true', default=False,
@@ -186,13 +186,13 @@ def pssm_apply_arg_parsing(subparsers):
     help_str += '-1 HelT ProT MGW Roll'
     help_str += ' (note that we assume such an order)'
     parser_a.add_argument('-1', '--1storder', required=True, type=str,
-                          dest='first_shape', action='store', nargs=4,
+                          dest='shape_first_order', action='store', nargs=4,
                           help=help_str)
     help_str = 'List of 2nd-order bigWig files as\n'
     help_str += '-2 HelT2 ProT2 MGW2 Roll2'
     help_str += ' (note that we assume such an order)'
     parser_a.add_argument('-2', '--2ndorder', required=False, type=str,
-                          dest='second_shape', action='store', nargs=4,
+                          dest='shape_second_order', action='store', nargs=4,
                           default=[], help=help_str)
     parser_a.add_argument('-n', '--scaled', required=False, dest='scaled',
                           action='store_true', default=False,
@@ -241,13 +241,13 @@ def binary_train_arg_parsing(subparsers):
     help_str += '-1 HelT ProT MGW Roll'
     help_str += ' (note that we assume such an order)'
     parser_t.add_argument('-1', '--1storder', required=True, type=str,
-                          dest='first_shape', action='store', nargs=4,
+                          dest='shape_first_order', action='store', nargs=4,
                           help=help_str)
     help_str = 'List of 2nd-order bigWig files as\n'
     help_str += '-2 HelT2 ProT2 MGW2 Roll2'
     help_str += ' (note that we assume such an order)'
     parser_t.add_argument('-2', '--2ndorder', required=False, type=str,
-                          dest='second_shape', action='store', nargs=4,
+                          dest='shape_second_order', action='store', nargs=4,
                           default=[], help=help_str)
     parser_t.add_argument('-n', '--scaled', required=False, dest='scaled',
                           action='store_true', default=False,
@@ -289,13 +289,13 @@ def binary_apply_arg_parsing(subparsers):
     help_str += '-1 HelT ProT MGW Roll'
     help_str += ' (note that we assume such an order)'
     parser_a.add_argument('-1', '--1storder', required=True, type=str,
-                          dest='first_shape', action='store', nargs=4,
+                          dest='shape_first_order', action='store', nargs=4,
                           help=help_str)
     help_str = 'List of 2nd-order bigWig files as\n'
     help_str += '-2 HelT2 ProT2 MGW2 Roll2'
     help_str += ' (note that we assume such an order)'
     parser_a.add_argument('-2', '--2ndorder', required=False, type=str,
-                          dest='second_shape', action='store', nargs=4,
+                          dest='shape_second_order', action='store', nargs=4,
                           default=[], help=help_str)
     parser_a.add_argument('-n', '--scaled', required=False, dest='scaled',
                           action='store_true', default=False,
@@ -344,13 +344,13 @@ def pssm_train_and_apply_arg_parsing(subparsers):
     help_str += '-1 HelT ProT MGW Roll'
     help_str += ' (note that we assume such an order)'
     parser_t.add_argument('-1', '--1storder', required=True, type=str,
-                          dest='first_shape', action='store', nargs=4,
+                          dest='shape_first_order', action='store', nargs=4,
                           help=help_str)
     help_str = 'List of 2nd-order bigWig files as\n'
     help_str += '-2 HelT2 ProT2 Roll2'
     help_str += ' (note that we assume such an order)'
     parser_t.add_argument('-2', '--2ndorder', required=False, type=str,
-                          dest='second_shape', action='store', nargs=3,
+                          dest='shape_second_order', action='store', nargs=3,
                           default=[], help=help_str)
     parser_t.add_argument('-n', '--scaled', required=False, dest='scaled',
                           action='store_true', default=False,
@@ -359,6 +359,25 @@ def pssm_train_and_apply_arg_parsing(subparsers):
     help_str += ' (default:0).'
     parser_t.add_argument('-e', '--extension', required=False, type=int,
                           dest='extension', action='store', default=0,
+                          help=help_str)
+    parser_t.set_defaults(func=pssm_train_and_apply_classifier)
+    help_str = 'Type of feature vector to construct\n'
+    help_str += '(0 = seq_and_dna_shape| 1 = dna_shape_only | 2 = dna_shape_and_flexibility)'
+    help_str += ' (default : 0).'
+    parser_t.add_argument('-q', '--feature_vector_type', required=False, type=int,
+                          dest='feature_vector_type', action='store', default=0,
+                          help=help_str)
+    help_str = 'Type of DNA sequence feature to consider\n'
+    help_str += '(0 = PSSM | 1 = TFFM | 2 = 4bit)'
+    help_str += ' (default : 0).'
+    parser_t.add_argument('-s', '--seq_feature', required=False, type=int,
+                          dest='seq_feature', action='store', default=0,
+                          help=help_str)
+    help_str = 'Are we evaluating flexibility with a wrapper function?\n'
+    help_str += '(0 = False | 1 = True)'
+    help_str += ' (default : 0).'
+    parser_t.add_argument('-E', '--is_eval_f', required=False, type=int,
+                          dest='is_eval_f', action='store', default=0,
                           help=help_str)
     parser_t.set_defaults(func=pssm_train_and_apply_classifier)
 

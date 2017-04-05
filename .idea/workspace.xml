@@ -5,49 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2783bdd2-21c7-4419-a0b1-73ef1aac6ee2" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/561_execution/PFM/BARHL2/MA0635.1.pfm" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/561_execution/PFM/BHLHE40/MA0464.2.pfm" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/561_execution/PFM/CEBPB/MA0466.2.pfm" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/561_execution/PFM/CTCF/MA0139.1.pfm" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/561_execution/PFM/E2F1/MA0024.3.pfm" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/561_execution/PFM/E2F4/MA0470.1.pfm" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/561_execution/PFM/EBF1/MA0154.3.pfm" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/561_execution/PFM/EGR1/MA0162.2.pfm" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/561_execution/PFM/ELF1/MA0473.2.pfm" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/561_execution/PFM/ELK4/MA0076.2.pfm" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/561_execution/PFM/ESR1/MA0112.3.pfm" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/561_execution/PFM/ESSRA/MA0592.2.pfm" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/561_execution/PFM/ETS1/MA0098.3.pfm" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/561_execution/PFM/GATA1/MA0035.3.pfm" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/561_execution/PFM/GATA3/MA0037.2.pfm" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/561_execution/PFM/GFI1/MA0038.1.pfm" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/561_execution/PFM/HSF1/MA0486.2.pfm" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/561_execution/PFM/NFE2/MA0841.1.pfm" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/561_execution/PFM/NFIC/MA0161.1.pfm" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/561_execution/PFM/NFKB1/MA0105.4.pfm" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/561_execution/PFM/NR2C2/MA0504.1.pfm" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/561_execution/PFM/NR3C1/MA0113.3.pfm" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/561_execution/PFM/NRF1/MA0506.1.pfm" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/561_execution/PFM/PAX5/MA0014.2.pfm" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/561_execution/PFM/POU2F2/MA0507.1.pfm" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/561_execution/PFM/PRDM1/MA0508.1.pfm" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/561_execution/PFM/REST/MA0138.2.pfm" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/561_execution/PFM/RFX5/MA0510.2.pfm" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/561_execution/PFM/SREBF1/MA0595.1.pfm" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/561_execution/PFM/STAT1/MA0137.3.pfm" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/561_execution/PFM/TCF3/MA0522.2.pfm" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/561_execution/PFM/TCF7L2/MA0523.1.pfm" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/561_execution/PFM/TEAD1/MA0090.2.pfm" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/561_execution/PFM/TEAD4/MA0809.1.pfm" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/561_execution/PFM/ZEB1/MA0103.2.pfm" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/561_execution/PFM/ZNF143/MA0088.2.pfm" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/561_execution/PFM/ZNF263/MA0528.1.pfm" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/561_execution/test.sh" afterPath="$PROJECT_DIR$/561_execution/test.sh" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/DNAshapedTFBS_argsParsing.py" afterPath="$PROJECT_DIR$/DNAshapedTFBS_argsParsing.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/DNAshapedTFBS_classification.py" afterPath="$PROJECT_DIR$/DNAshapedTFBS_classification.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/DNAshapedTFBS_commonUtils.py" afterPath="$PROJECT_DIR$/DNAshapedTFBS_commonUtils.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/DNAshapedTFBS_featureVectors.py" afterPath="$PROJECT_DIR$/DNAshapedTFBS_featureVectors.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -62,8 +23,8 @@
       <file leaf-file-name="DNAshapedTFBS_classification.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/DNAshapedTFBS_classification.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="969">
-              <caret line="145" column="0" lean-forward="true" selection-start-line="145" selection-start-column="0" selection-end-line="145" selection-end-column="0" />
+            <state relative-caret-position="-2080">
+              <caret line="160" column="49" lean-forward="false" selection-start-line="160" selection-start-column="49" selection-end-line="160" selection-end-column="49" />
               <folding>
                 <element signature="e#168#204#0" expanded="true" />
               </folding>
@@ -71,14 +32,34 @@
           </provider>
         </entry>
       </file>
+      <file leaf-file-name="DNAshapedTFBS_argsParsing.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/DNAshapedTFBS_argsParsing.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="198">
+              <caret line="352" column="32" lean-forward="false" selection-start-line="352" selection-start-column="32" selection-end-line="352" selection-end-column="32" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="DNAshapedTFBS_commonUtils.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/DNAshapedTFBS_commonUtils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="236">
-              <caret line="268" column="39" lean-forward="false" selection-start-line="268" selection-start-column="39" selection-end-line="268" selection-end-column="39" />
+            <state relative-caret-position="9560">
+              <caret line="478" column="10" lean-forward="false" selection-start-line="478" selection-start-column="10" selection-end-line="478" selection-end-column="10" />
               <folding>
                 <element signature="e#17#26#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="DNAshapedTFBS_featureVectors.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/DNAshapedTFBS_featureVectors.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="980">
+              <caret line="55" column="32" lean-forward="false" selection-start-line="55" selection-start-column="32" selection-end-line="55" selection-end-column="32" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -88,8 +69,41 @@
   <component name="FindInProjectRecents">
     <findStrings>
       <find>PF</find>
+      <find>internal</find>
       <find>PFM</find>
+      <find>h</find>
+      <find>hit</find>
+      <find>-v</find>
+      <find>-t</find>
+      <find>-s</find>
+      <find>-E</find>
+      <find>hits</find>
+      <find>f</find>
+      <find>fir</find>
+      <find>firs</find>
+      <find>first</find>
+      <find>first</find>
+      <find>first_</find>
+      <find>first_s</find>
+      <find>first_sh</find>
+      <find>first_sha</find>
+      <find>first_shape</find>
+      <find>s</find>
+      <find>se</find>
+      <find>sec</find>
+      <find>seco</find>
+      <find>second</find>
+      <find>second_</find>
+      <find>second_sh</find>
+      <find>second_sha</find>
+      <find>second_shap</find>
+      <find>second_shape</find>
     </findStrings>
+    <replaceStrings>
+      <replace />
+      <replace>shape_first_order</replace>
+      <replace>shape_second_order</replace>
+    </replaceStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -97,13 +111,13 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/DNAshapedTFBS_featureVectors.py" />
         <option value="$PROJECT_DIR$/DNAshapedTFBS_featureImportanceHeatmap.py" />
         <option value="$PROJECT_DIR$/561_execution/test.sh" />
         <option value="$PROJECT_DIR$/.gitignore" />
+        <option value="$PROJECT_DIR$/DNAshapedTFBS_featureVectors.py" />
         <option value="$PROJECT_DIR$/DNAshapedTFBS_argsParsing.py" />
-        <option value="$PROJECT_DIR$/DNAshapedTFBS_commonUtils.py" />
         <option value="$PROJECT_DIR$/DNAshapedTFBS_classification.py" />
+        <option value="$PROJECT_DIR$/DNAshapedTFBS_commonUtils.py" />
       </list>
     </option>
   </component>
@@ -407,10 +421,10 @@
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32672232" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3747927" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3747927" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Inspection Results" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32985386" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32776618" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32045928" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -431,13 +445,13 @@
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32672232" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32672232" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3747927" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3747927" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection Results" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32985386" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32776618" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32045928" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -488,22 +502,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/DNAshapedTFBS_featureVectors.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="329">
-          <caret line="72" column="71" lean-forward="false" selection-start-line="72" selection-start-column="71" selection-end-line="72" selection-end-column="71" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/DNAshapedTFBS_constants.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/DNAshapedTFBS_featureImportanceHeatmap.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="578">
@@ -536,18 +534,42 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/TFFM/tffm_module.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-10">
+          <caret line="265" column="69" lean-forward="true" selection-start-line="265" selection-start-column="69" selection-end-line="265" selection-end-column="69" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/DNAshapedTFBS_constants.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/DNAshapedTFBS_featureVectors.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="980">
+          <caret line="55" column="32" lean-forward="false" selection-start-line="55" selection-start-column="32" selection-end-line="55" selection-end-column="32" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/DNAshapedTFBS_argsParsing.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="722">
-          <caret line="384" column="23" lean-forward="false" selection-start-line="384" selection-start-column="23" selection-end-line="384" selection-end-column="23" />
+        <state relative-caret-position="198">
+          <caret line="352" column="32" lean-forward="false" selection-start-line="352" selection-start-column="32" selection-end-line="352" selection-end-column="32" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/DNAshapedTFBS_commonUtils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="236">
-          <caret line="268" column="39" lean-forward="false" selection-start-line="268" selection-start-column="39" selection-end-line="268" selection-end-column="39" />
+        <state relative-caret-position="9560">
+          <caret line="478" column="10" lean-forward="false" selection-start-line="478" selection-start-column="10" selection-end-line="478" selection-end-column="10" />
           <folding>
             <element signature="e#17#26#0" expanded="true" />
           </folding>
@@ -556,8 +578,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/DNAshapedTFBS_classification.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="969">
-          <caret line="145" column="0" lean-forward="true" selection-start-line="145" selection-start-column="0" selection-end-line="145" selection-end-column="0" />
+        <state relative-caret-position="-2080">
+          <caret line="160" column="49" lean-forward="false" selection-start-line="160" selection-start-column="49" selection-end-line="160" selection-end-column="49" />
           <folding>
             <element signature="e#168#204#0" expanded="true" />
           </folding>

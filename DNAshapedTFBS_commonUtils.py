@@ -62,6 +62,20 @@ def encode_hits(hits):
     return encoding
 
 
+def match_feature_vector_length(foreground_data, background_data):
+    """
+    Trim the foreground and background feature vectors to the same size
+
+    """
+    fg_len = len(foreground_data)
+    bg_len = len(background_data)
+    if fg_len > bg_len:
+        foreground_data = foreground_data[0:bg_len]
+    elif bg_len > fg_len:
+        background_data = background_data[0:fg_len]
+    return foreground_data, background_data
+
+
 def get_positions_from_bed(bed_file):
     """ Get the positions of the sequences described in the bed file. """
     with open(bed_file) as stream:
@@ -279,11 +293,21 @@ def output_k_fold_prc_roc_results(argu, mean_auprc, mean_auroc):
 # FEATURE IMPORTANCE I/O
 
 
-def construct_feature_names_array(argu, motif_length, shape_feature_names, is_eval_f):
+def construct_feature_names_array(argu, motif_length, shape_feature_names):
     print "\n\nOur shape features:", shape_feature_names
     print "\n\nOur motif length:", motif_length
-
+    is_eval_f = True if argu.feature_vector_type == 2 and argu.is_eval_f == 1 else False
     feature_names = []
+
+    if argu.feature_vector_type == 0:
+        seq_feature = argu.seq_feature
+        if seq_feature == 0:  # PSSM
+            feature_names += ['PSSM_SCORE']
+        elif seq_feature == 1:  # TFFM
+            feature_names += ['TFFM_SCORE']
+        elif seq_feature == 2: # Binary encoding
+            feature_names += ['SEQUENCE_ENCODING']
+
     for shapeName in shape_feature_names:
         feature_names += [shapeName] * motif_length
 
@@ -320,6 +344,18 @@ def output_classifier_feature_importances(argu, classifier, data, labels, featur
 
 
 # DETERMINISTIC MOTIF SCANNING
+
+
+def get_motif_hits(argu, seq_file, is_foreground):
+    seq_feature = argu.seq_feature
+    if seq_feature == 0 or seq_feature == 2:  # PSSM or Encoding
+        if argu.jasparid:
+            pssm = get_jaspar_pssm(argu.jasparid)
+        else:
+            pssm = get_jaspar_pssm(argu.jasparfile, False)
+        return find_pssm_hits(pssm, seq_file, is_foreground)
+    elif seq_feature == 1:  # TFFM
+        return find_tffm_hits(argu.tffm_file, seq_file, argu.tffm_kind)
 
 
 def find_pssm_hits(pssm, seq_file, is_foreground):
@@ -430,20 +466,21 @@ def get_score_of_dna_shape(in_file, shape=None, scaled=False):
         return scores
 
 
-def get_motif_dna_shape_vector(hits, bed_file, first_shape, second_shape, extension=0,
-                               scaled=False):
+def get_motif_dna_shapes_vector(hits, bed_file, shape_first_order, shape_second_order, extension=0,
+                                scaled=False):
     """ Retrieve DNAshape feature values for the hits. """
-    bigwigs = first_shape + second_shape
+    bigwigs = shape_first_order + shape_second_order
     print(bigwigs)
     import subprocess
     import os
     peaks_pos = get_positions_from_bed(bed_file)
     with open(os.devnull, 'w') as devnull:
         tmp_file = print_extended_hits(hits, peaks_pos, extension)
+        # TODO: put MGW2 back here
         # MODIFIED HERE TO REMOVE MGW2
         shapes = ['HelT', 'ProT', 'MGW', 'Roll', 'HelT2', 'ProT2',
                   'Roll2']
-        hits_shapes = []
+        motif_dna_shapes_vector = []
         for indx, bigwig in enumerate(bigwigs):
             if bigwig:
                 out_file = '{0}.{1}'.format(tmp_file, shapes[indx])
@@ -454,15 +491,15 @@ def get_motif_dna_shape_vector(hits, bed_file, first_shape, second_shape, extens
                 except:
                     print("THERE WAS AN ERROR READING THIS BW FILE")
                 if indx < 4:
-                    hits_shapes.append(get_score_of_dna_shape(out_file, shapes[indx], scaled))
+                    motif_dna_shapes_vector.append(get_score_of_dna_shape(out_file, shapes[indx], scaled))
                 else:
-                    hits_shapes.append(get_score_of_dna_shape(out_file, shapes[indx]))
+                    motif_dna_shapes_vector.append(get_score_of_dna_shape(out_file, shapes[indx]))
         subprocess.call(['rm', '-f', '{0}.HelT'.format(tmp_file),
                          '{0}.MGW'.format(tmp_file), '{0}.ProT'.format(tmp_file),
                          '{0}.Roll'.format(tmp_file), '{0}.HelT2'.format(tmp_file),
                          '{0}.ProT2'.format(tmp_file), '{0}.Roll2'.format(tmp_file), tmp_file])
 
-        return hits_shapes
+        return motif_dna_shapes_vector
 
 
 # HELPER FUNCTIONS FOR PROMOTER REGION FLEXIBILITY EVALUATION
