@@ -438,9 +438,9 @@ def extended_hit_pos(hit, peak_chrom, peak_start, extension=0):
     return peak_chrom, start, end
 
 
-def print_extended_hits(hits, positions, extension=0):
+def output_extended_motif_hits(hits, positions, extension=0):
     """
-    Print the extended hits to a temporary bed file.
+    Write the extended hits to a temporary bed file.
 
     :returns: The name of the temporary file.
     :rtype: str
@@ -489,16 +489,18 @@ def get_score_of_dna_shape(in_file, shape=None, scaled=False):
         return scores
 
 
-def get_motif_dna_shapes_vector(hits, bed_file, shape_first_order, shape_second_order, extension=0,
-                                scaled=False):
+def get_motif_dna_shapes_vector(motif_hits, bed_file, shape_first_order,
+                                shape_second_order, extension=0, scaled=False):
     """ Retrieve DNAshape feature values for the hits. """
-    bigwigs = shape_first_order + shape_second_order
-    print(bigwigs)
     import subprocess
     import os
+    # What shape feature are we currently considering?
+    bigwigs = shape_first_order + shape_second_order
+    print(bigwigs)
+    # Retrieve peak from bed file
     peaks_pos = get_positions_from_bed(bed_file)
     with open(os.devnull, 'w') as devnull:
-        tmp_file = print_extended_hits(hits, peaks_pos, extension)
+        tmp_file = output_extended_motif_hits(motif_hits, peaks_pos, extension)
         # TODO: put MGW2 back here
         # MODIFIED HERE TO REMOVE MGW2
         shapes = ['HelT', 'ProT', 'MGW', 'Roll', 'HelT2', 'ProT2',

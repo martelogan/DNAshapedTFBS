@@ -19,11 +19,28 @@ declare -a arr=("HSF1")
 # now loop through the above array
 for i in "${arr[@]}"
 do
-   echo "Training a PSSM + DNA shape classifier for protein $i.";
-	time python2.7 ../DNAshapedTFBS_classification.py PSSM_ALL -f $(echo $(ls -1 PFMs/"$i"/*.pfm)) \
+   # IN-MEMORY TRAIN AND TEST (currently applies kfold by default)
+   echo "Train and test a PSSM + DNA shape + Flex classifier for protein $i.";
+	time python2.7 ../DNAshapedTFBS_classification.py custom_train_and_apply -f $(echo $(ls -1 PFMs/"$i"/*.pfm)) \
     -i foreground/fasta/"$i".fa -I foreground/bed/"$i" \
     -b background/fasta/"$i".fa -B background/bed/"$i" \
     -o "$i" \
     --feature_vector_type 2 \
     -1 $helt $mgw $prot $roll -2 $helt2 $mgw2 $roll2 -n;
+
+    # INDEPENDENT TRAINING + TESTING EXECUTIONS
+#    echo "Training a PSSM + DNA shape classifier.";
+#    time python2.7 ../DNAshapedTFBS_classification.py custom_train -f $(echo $(ls -1 PFMs/"$i"/*.pfm)) \
+#    -i foreground/fasta/"$i".fa -I foreground/bed/"$i" \
+#    -b background/fasta/"$i".fa -B background/bed/"$i" \
+#    -o "$i" \
+#    --feature_vector_type 2 \
+#    -1 $helt $mgw $prot $roll -2 $helt2 $mgw2 $roll2 -n;
+#
+#    echo "Applying the trained PSSM + DNA shape classifier on foreground sequences.";
+#    time python2.7 ../DNAshapedTFBS_classification.py custom_apply -f $(echo $(ls -1 PFMs/"$i"/*.pfm)) \
+#    -i foreground/fasta/"$i".fa -I foreground/bed/"$i" \
+#    -c "$i".pkl -o "$i"_fg_predictions.txt \
+#    --feature_vector_type 2 \
+#    -1 $helt $mgw $prot $roll -2 $helt2 $mgw2 $roll2 -n;
 done

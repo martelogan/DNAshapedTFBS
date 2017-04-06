@@ -9,11 +9,15 @@ from sklearn.externals import joblib
 from DNAshapedTFBS_argsParsing import *
 from DNAshapedTFBS_featureVectors import *
 from DNAshapedTFBS_commonUtils import *
+from DNAshapedTFBS_constants import *
 
 # Local environment config
 # TODO: Test if TFFM is installed instead of using local env.
 PATH = os.path.dirname(os.path.realpath(__file__))
 sys.path.append('{0}/TFFM/'.format(PATH))
+
+# TODO: UPDATE TO REFLECT CURRENTLY ACTIVE BIGWIGS (MISSING MGW2 RIGHT NOW)
+shape_feature_names = ['HelT', 'ProT', 'MGW', 'Roll', 'HelT2', 'MGW2', 'Roll2']
 
 
 # CLASSIFICATION HELPER FUNCTIONS
@@ -25,104 +29,54 @@ def construct_classifier_input(foreground, background):
     return foreground + background, classes
 
 
-def fit_classifier(fg_training_motif_hits, fg_training_dna_shapes_matrix, bg_training_motif_hits,
-                   bg_training_dna_shapes_matrix, extension=0, bool4bits=False):
+def fit_classifier(argu, fg_training_motif_hits, fg_training_dna_shapes_matrix, bg_training_motif_hits,
+                   bg_training_dna_shapes_matrix, feature_vector_type, seq_feature_type):
     """ Fit the classifier to the training data. """
     from sklearn.ensemble import GradientBoostingClassifier
-    fg_train = construct_dna_shape_only_feature_vector(fg_training_motif_hits, fg_training_dna_shapes_matrix, extension,
-                                                       bool4bits)
-    bg_train = construct_dna_shape_only_feature_vector(bg_training_motif_hits, bg_training_dna_shapes_matrix, extension,
-                                                       bool4bits)
-    data, classification = construct_classifier_input(fg_train, bg_train)
+    fg_train = get_feature_vector(argu, feature_vector_type, seq_feature_type,
+                                  fg_training_motif_hits, fg_training_dna_shapes_matrix)
+    bg_train = get_feature_vector(argu, feature_vector_type, seq_feature_type,
+                                  bg_training_motif_hits, bg_training_dna_shapes_matrix)
+    data, labels = construct_classifier_input(fg_train, bg_train)
     classifier = GradientBoostingClassifier()
-    classifier.fit(data, classification)
+    classifier.fit(data, labels)
     return classifier
 
 
 # CLASSIFICATION EXECUTIONS
 
+# ********************
+# TRAINING FUNCTIONS
+# ********************
 
-def apply_classifier(argu, motif_hits, bool4bits=False):
-    """ Apply the DNAshape based classifier. """
-    # Two options, 1) doing sequence by sequence but it means doing a lot of
-    # bwtool calls and I/O, 2) doing all sequences as one batch but means that
-    # we need to associate back probas to hits. I choose 2) to reduce I/O.
-
-    hits_shapes = get_motif_dna_shapes_vector(motif_hits, argu.fg_bed, argu.shape_first_order,
-                                              argu.shape_second_order, argu.extension, argu.scaled)
-    classifier = joblib.load(argu.classifier)
-    if bool4bits:
-        tests = construct_dna_shape_only_feature_vector(encode_hits(motif_hits), hits_shapes,
-                                                        argu.extension, bool4bits)
-    else:
-        tests = construct_dna_shape_only_feature_vector(motif_hits, hits_shapes, argu.extension,
-                                                        bool4bits)
-    # Need to print the results by associating the probas to the hits
-    predictions = make_predictions(classifier, tests, motif_hits, argu.threshold)
-    output_classifier_predictions(predictions, argu.output)
-
-
-def tffm_apply_classifier(argu):
-    """ Apply the TFFM + DNA shape classifier. """
-    motif_hits = find_tffm_hits(argu.tffm_file, argu.in_fasta, argu.tffm_kind)
-    if motif_hits:
-        apply_classifier(argu, motif_hits)
-    else:
-        with open(argu.output, 'w') as stream:
-            stream.write('No hit predicted\n')
-
-
-def pssm_apply_classifier(argu):
-    """ Apply the TFFM + DNA shape classifier. """
-    if argu.jasparid:
-        pssm = get_jaspar_pssm(argu.jasparid)
-    else:
-        pssm = get_jaspar_pssm(argu.jasparfile, False)
-    motif_hits = find_pssm_hits(pssm, argu.in_fasta)
-    if motif_hits:
-        apply_classifier(argu, motif_hits)
-    else:
-        with open(argu.output, 'w') as stream:
-            stream.write('No hit predicted\n')
-
-
-def binary_apply_classifier(argu):
-    """ Apply the 4-bits + DNA shape classifier. """
-    if argu.jasparid:
-        pssm = get_jaspar_pssm(argu.jasparid)
-    else:
-        pssm = get_jaspar_pssm(argu.jasparfile, False)
-    motif_hits = find_pssm_hits(pssm, argu.in_fasta)
-    if motif_hits:
-        apply_classifier(argu, motif_hits, True)
-    else:
-        with open(argu.output, 'w') as stream:
-            stream.write('No hit predicted\n')
-
-
-def train_classifier(argu, fg_hits, bg_hits, bool4bits=False):
-    """ Train the DNAshape-based classifier. """
-    fg_shapes = get_motif_dna_shapes_vector(fg_hits, argu.fg_bed, argu.shape_first_order,
-                                            argu.shape_second_order, argu.extension, argu.scaled)
-    bg_shapes = get_motif_dna_shapes_vector(bg_hits, argu.bg_bed, argu.shape_first_order,
-                                            argu.shape_second_order, argu.extension, argu.scaled)
-    if bool4bits:
-        classifier = fit_classifier(encode_hits(fg_hits), fg_shapes,
-                                    encode_hits(bg_hits), bg_shapes, argu.extension, bool4bits)
-    else:
-        classifier = fit_classifier(fg_hits, fg_shapes, bg_hits, bg_shapes,
-                                    argu.extension, bool4bits)
+def train_classifier(argu, fg_hits, bg_hits, feature_vector_type, seq_feature_type):
+    """ Train the DNAshape-based classifier and dump the python object to a temporary file"""
+    fg_dna_shapes_matrix = None
+    bg_dna_shapes_matrix = None
+    if feature_vector_type in DNA_SHAPE_FEATURE_TYPE_CONSTANTS: # Include DNA Shape features
+        fg_dna_shapes_matrix = get_motif_dna_shapes_vector(fg_hits, argu.fg_bed, argu.shape_first_order,
+                                                argu.shape_second_order, argu.extension, argu.scaled)
+        bg_dna_shapes_matrix = get_motif_dna_shapes_vector(bg_hits, argu.bg_bed, argu.shape_first_order,
+                                                argu.shape_second_order, argu.extension, argu.scaled)
+    # NOTE: DNA Shape Matrices might be null below if our classifier does not use them
+    if seq_feature_type == BINARY_ENCODING_TYPE_CONSTANT:  # Binary encoding
+        classifier = fit_classifier(argu, encode_hits(fg_hits), fg_dna_shapes_matrix, encode_hits(bg_hits),
+                                    bg_dna_shapes_matrix, feature_vector_type, seq_feature_type)
+    else:  # some other feature vector type
+        classifier = fit_classifier(argu, fg_hits, fg_dna_shapes_matrix, bg_hits,
+                                    bg_dna_shapes_matrix, feature_vector_type, seq_feature_type)
+    # Persist the python classifier object in a temporary file
     joblib.dump(classifier, '{0}.pkl'.format(argu.output))
 
 
-def tffm_train_classifier(argu):
+def dna_shape_and_tffm_train_classifier(argu):
     """ Train a TFFM + DNA shape classifier. """
     fg_hits = find_tffm_hits(argu.tffm_file, argu.fg_fasta, argu.tffm_kind)
     bg_hits = find_tffm_hits(argu.tffm_file, argu.bg_fasta, argu.tffm_kind)
-    train_classifier(argu, fg_hits, bg_hits)
+    train_classifier(argu, fg_hits, bg_hits, SEQ_AND_DNA_SHAPE_TYPE_CONSTANT, TFFM_SCORE_TYPE_CONSTANT)
 
 
-def pssm_train_classifier(argu):
+def dna_shape_and_pssm_train_classifier(argu):
     """ Train a PSSM + DNA shape classifier. """
     if argu.jasparid:
         pssm = get_jaspar_pssm(argu.jasparid)
@@ -130,10 +84,10 @@ def pssm_train_classifier(argu):
         pssm = get_jaspar_pssm(argu.jasparfile, False)
     fg_hits = find_pssm_hits(pssm, argu.fg_fasta, True)
     bg_hits = find_pssm_hits(pssm, argu.bg_fasta, False)
-    train_classifier(argu, fg_hits, bg_hits)
+    train_classifier(argu, fg_hits, bg_hits, SEQ_AND_DNA_SHAPE_TYPE_CONSTANT, PSSM_SCORE_TYPE_CONSTANT)
 
 
-def binary_train_classifier(argu):
+def dna_shape_and_binary_train_classifier(argu):
     """ Train a 4-bits + DNA shape classifier. """
     if argu.jasparid:
         pssm = get_jaspar_pssm(argu.jasparid)
@@ -141,10 +95,102 @@ def binary_train_classifier(argu):
         pssm = get_jaspar_pssm(argu.jasparfile, False)
     fg_hits = find_pssm_hits(pssm, argu.fg_fasta, True)
     bg_hits = find_pssm_hits(pssm, argu.bg_fasta, False)
-    train_classifier(argu, fg_hits, bg_hits, True)
+    train_classifier(argu, fg_hits, bg_hits, SEQ_AND_DNA_SHAPE_TYPE_CONSTANT, BINARY_ENCODING_TYPE_CONSTANT)
 
 
-def pssm_train_and_apply_classifier(argu):
+def custom_train_classifier(argu):
+    """ Adapt classifier training to input args. """
+    fg_hits = get_motif_hits(argu, argu.fg_fasta, True)
+    bg_hits = get_motif_hits(argu, argu.bg_fasta, False)
+    train_classifier(argu, fg_hits, bg_hits, argu.feature_vector_type, argu.seq_feature)
+
+
+# ********************
+# PREDICTION FUNCTIONS
+# ********************
+
+
+def apply_classifier(argu, motif_hits, feature_vector_type, seq_feature_type):
+    """ Apply the DNAshape based classifier. """
+    # Two options: 1) doing sequence by sequence but it means doing a lot of
+    # bwtool calls and I/O, 2) doing all sequences as one batch but means that
+    # we need to associate back probas to hits. I chose 2) to reduce I/O. - by Mathelier
+
+    dna_shapes_matrix = None
+    if feature_vector_type in DNA_SHAPE_FEATURE_TYPE_CONSTANTS: # Include DNA Shape features
+        dna_shapes_matrix = get_motif_dna_shapes_vector(motif_hits, argu.in_bed, argu.shape_first_order,
+                                              argu.shape_second_order, argu.extension, argu.scaled)
+    # RELOAD OUR CLASSIFIER
+    classifier = joblib.load(argu.classifier)
+    # NOTE: DNA Shape Matrix might be null below if our classifier does not use it
+    if seq_feature_type == BINARY_ENCODING_TYPE_CONSTANT:  # Binary encoding
+        test_data_feature_vectors = get_feature_vector(argu, feature_vector_type, seq_feature_type,
+                                                       encode_hits(motif_hits), dna_shapes_matrix)
+    else:
+        test_data_feature_vectors = get_feature_vector(argu, feature_vector_type, seq_feature_type,
+                                                       motif_hits, dna_shapes_matrix)
+    # To output results, we must first associate our probas to the motif hits
+    predictions = make_predictions(classifier, test_data_feature_vectors, motif_hits, argu.threshold)
+    output_classifier_predictions(predictions, argu.output)
+
+
+def dna_shape_and_pssm_apply_classifier(argu):
+    """ Apply the TFFM + DNA shape classifier. """
+    if argu.jasparid:
+        pssm = get_jaspar_pssm(argu.jasparid)
+    else:
+        pssm = get_jaspar_pssm(argu.jasparfile, False)
+    # To be conservative: treat our test data as foreground and consider the best potential motifs
+    motif_hits = find_pssm_hits(pssm, argu.in_fasta, True)
+    if motif_hits:
+        apply_classifier(argu, motif_hits, SEQ_AND_DNA_SHAPE_TYPE_CONSTANT, PSSM_SCORE_TYPE_CONSTANT)
+    else:
+        with open(argu.output, 'w') as stream:
+            stream.write('No motif hits predicted\n')
+
+
+def dna_shape_and_tffm_apply_classifier(argu):
+    """ Apply the TFFM + DNA shape classifier. """
+    motif_hits = find_tffm_hits(argu.tffm_file, argu.in_fasta, argu.tffm_kind)
+    if motif_hits:
+        apply_classifier(argu, motif_hits, SEQ_AND_DNA_SHAPE_TYPE_CONSTANT, TFFM_SCORE_TYPE_CONSTANT)
+    else:
+        with open(argu.output, 'w') as stream:
+            stream.write('No motif hits predicted\n')
+
+
+def dna_shape_and_binary_apply_classifier(argu):
+    """ Apply the 4-bits + DNA shape classifier. """
+    if argu.jasparid:
+        pssm = get_jaspar_pssm(argu.jasparid)
+    else:
+        pssm = get_jaspar_pssm(argu.jasparfile, False)
+        # To be conservative: treat our test data as foreground and consider the best potential motifs
+    motif_hits = find_pssm_hits(pssm, argu.in_fasta, True)
+    if motif_hits:
+        apply_classifier(argu, motif_hits, SEQ_AND_DNA_SHAPE_TYPE_CONSTANT, BINARY_ENCODING_TYPE_CONSTANT)
+    else:
+        with open(argu.output, 'w') as stream:
+            stream.write('No hit predicted\n')
+
+
+def custom_apply_classifier(argu):
+    """ Adapt classifier application to input args. """
+    # To be conservative: treat our test data as foreground and consider the best potential motifs
+    motif_hits = get_motif_hits(argu, argu.in_fasta, True)
+    if motif_hits:
+        apply_classifier(argu, motif_hits, argu.feature_vector_type, argu.seq_feature)
+    else:
+        with open(argu.output, 'w') as stream:
+            stream.write('No motif hits predicted\n')
+
+
+# ********************
+# BATCH EXECUTIONS
+# ********************
+
+
+def custom_train_and_apply_classifier(argu):
     from sklearn.ensemble import GradientBoostingClassifier
     from sklearn.model_selection import StratifiedKFold
 
@@ -160,14 +206,13 @@ def pssm_train_and_apply_classifier(argu):
     bg_shapes = get_motif_dna_shapes_vector(bg_hits, argu.bg_bed, argu.shape_first_order,
                                             argu.shape_second_order, argu.extension, argu.scaled)
 
-    foreground_data = get_feature_vector(argu, fg_hits, fg_shapes)
-    background_data = get_feature_vector(argu, bg_hits, bg_shapes)
+    foreground_data = get_feature_vector(argu, argu.feature_vector_type, argu.seq_feature, fg_hits, fg_shapes)
+    background_data = get_feature_vector(argu, argu.feature_vector_type, argu.seq_feature, bg_hits, bg_shapes)
     foreground_data, background_data = match_feature_vector_length(foreground_data, background_data)
 
     data, labels = construct_classifier_input(foreground_data, background_data)
 
     # Get array of active feature names
-    shape_feature_names = ['HelT', 'ProT', 'MGW', 'Roll', 'HelT2', 'MGW2', 'Roll2']
     feature_names = construct_feature_names_array(argu, len(fg_hits[0]), shape_feature_names)
 
     output_data_vectors(argu, feature_names, data, labels)
