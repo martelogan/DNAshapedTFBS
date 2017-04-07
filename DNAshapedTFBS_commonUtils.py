@@ -168,7 +168,7 @@ def all_feature_names():
 def format_data_instance(argu, motif_length, data_instance):
     is_eval_f = \
         True if argu.feature_vector_type == DNA_SHAPE_AND_FLEX_TYPE_CONSTANT \
-        and argu.is_eval_f else False
+                and argu.is_eval_f else False
 
     formatted_data_instance = [''] * ALL_FEATURES_COUNT
     formatted_data_instance_index = 0
@@ -212,21 +212,41 @@ def format_data_instance(argu, motif_length, data_instance):
                 formatted_data_instance[formatted_data_instance_index] = data_instance[data_instance_index]
                 formatted_data_instance_index += 1
                 data_instance_index += 1
+    else:
+        formatted_data_instance[formatted_data_instance_index] = 'N/A'
+        formatted_data_instance_index += 1
+        for position in xrange(len(TRI_NUC_CLASSES)):
+            formatted_data_instance[formatted_data_instance_index] = 'N/A'
+            formatted_data_instance_index += 1
 
     return formatted_data_instance
 
 
-def output_experimental_results(argu, fitted_classifier, motif_length, feature_vector_type,
+def output_experimental_results(argu, predictions, motif_length, feature_vector_type,
                                 seq_feature_type, feature_names, data, labels):
     import csv
+
+    peak_ids = None
+    peak_start = None
+    peak_end = None
+    peak_strand = None
+    peak_sequence = None
+    proba = None
+    if predictions:
+        peak_ids = predictions['peak_id']
+        peak_start = predictions['start']
+        peak_end = predictions['end']
+        peak_strand = predictions['strand']
+        peak_sequence = predictions['sequence']
+        proba = predictions['proba']
 
     # Write data to protein-specific file
     # protein, feature_vector, label
     csv_title = argu.output + '_DATA_INSTANCES.csv'
-    with open(r''+csv_title, 'w') as f:
-        writer = csv .writer(f)
-        headers = ['Protein', 'Classification'] + feature_names
-        writer.writerow(headers)
+    with open(r'' + csv_title, 'w') as f:
+        writer = csv.writer(f)
+        title_headers = ['Protein', 'Prior_Classification', 'Predicted_Binding_Probability'] + feature_names
+        writer.writerow(title_headers)
         i = 0
         for data_instance in data:
             writer = csv.writer(f)
@@ -236,16 +256,19 @@ def output_experimental_results(argu, fitted_classifier, motif_length, feature_v
                 protein_name = argu.protein
             except AttributeError:
                 protein_name = argu.output
-            fields = [protein_name, label_str] + data_instance
+            predicted_binding_probability = 'N/A' if not predictions else proba[i]
+            fields = [protein_name, label_str, predicted_binding_probability] + data_instance
             i += 1
             writer.writerow(fields)
     # Append data to cumulative experiments file
     if not os.path.isfile(CUMULATIVE_EXPERIMENTS_PATH):
         with open(r'' + CUMULATIVE_EXPERIMENTS_PATH, 'w') as f:
             writer = csv.writer(f)
-            headers = ['Experiment_Name', 'Feature_Vector_Type', 'Sequence_Feature_Type', 'Background_Type',
-                       'Protein', 'Classification'] + all_feature_names()
-            writer.writerow(headers)
+            prediction_headers = ['Peak_Id', 'Peak_Start_Offset', 'Peak_End_Offset',
+                                  'Strand', 'Sequence', 'Predicted_Binding_Probability']
+            title_headers = ['Experiment_Name', 'Feature_Vector_Type', 'Sequence_Feature_Type', 'Background_Type',
+                             'Protein', 'Prior_Classification'] + prediction_headers + all_feature_names()
+            writer.writerow(title_headers)
     with open(r'' + CUMULATIVE_EXPERIMENTS_PATH, 'a') as f:
         i = 0
         for data_instance in data:
@@ -261,13 +284,18 @@ def output_experimental_results(argu, fitted_classifier, motif_length, feature_v
             except AttributeError:
                 background_type_str = 'N/A'
             titles = [exp_name, feature_vector_type_str, seq_feature_type_str, background_type_str]
+            predictions_data = ['N/A'] * 6
+            if predictions:
+                predictions_data = [peak_ids[i], peak_start[i], peak_end[i],
+                                    peak_strand[i], peak_sequence[i], proba[i]]
             label = labels[i]
             label_str = 'NotBound' if label == 0 else 'Bound'
             try:
                 protein_name = argu.protein
             except AttributeError:
                 protein_name = argu.output
-            fields = titles + [protein_name, label_str] + format_data_instance(argu, motif_length, data_instance)
+            fields = titles + [protein_name, label_str] + predictions_data +\
+                format_data_instance(argu, motif_length, data_instance)
             i += 1
             writer.writerow(fields)
 
@@ -280,7 +308,6 @@ def make_predictions(clf, tests, hits, proba_threshold):
     predictions = {'peak_id': [], 'start': [], 'end': [], 'strand': [],
                    'sequence': [], 'proba': []}
     for indx, proba in enumerate(clf.predict_proba(tests)):
-        # IIIITTTTTTS FUCKING HERE!!!!!!!!!!
         if proba[1] >= proba_threshold:
             hit = hits[indx]
             if hit:
@@ -457,7 +484,7 @@ def output_k_fold_prc_roc_results(argu, feature_vector_type, seq_feature_type, m
     except AttributeError:
         protein_name = argu.output
     fields = titles + [protein_name, str(mean_auprc), str(mean_auroc)]
-    with open(r''+CUMULATIVE_AUPRC_AUROC_PATH, 'a') as f:
+    with open(r'' + CUMULATIVE_AUPRC_AUROC_PATH, 'a') as f:
         writer = csv.writer(f)
         writer.writerow(fields)
 
@@ -470,7 +497,7 @@ def construct_feature_names_array(argu, motif_length, shape_feature_names):
     print "\n\nOur motif length:", motif_length
     is_eval_f = \
         True if argu.feature_vector_type == DNA_SHAPE_AND_FLEX_TYPE_CONSTANT \
-        and argu.is_eval_f else False
+                and argu.is_eval_f else False
 
     feature_names = []
     feature_vector_type = argu.feature_vector_type
@@ -493,8 +520,10 @@ def construct_feature_names_array(argu, motif_length, shape_feature_names):
             flexibility_eval_function_str = ['Flex_Eval_Function']
             feature_names += flexibility_eval_function_str
         else:  # we used the trinucleotide counts directly
-            tri_nuc_classes = ['AAT', 'AAA', 'CCA', 'AAC', 'ACT', 'CCG', 'ATC', 'AAG', 'CGC', 'AGG', 'GAA', 'ACG', 'ACC',
-                               'GAC', 'CCC', 'ACA', 'CGA', 'GGA', 'CAA', 'AGC', 'GTA', 'AGA', 'CTC', 'CAC', 'TAA', 'GCA',
+            tri_nuc_classes = ['AAT', 'AAA', 'CCA', 'AAC', 'ACT', 'CCG', 'ATC', 'AAG', 'CGC', 'AGG', 'GAA', 'ACG',
+                               'ACC',
+                               'GAC', 'CCC', 'ACA', 'CGA', 'GGA', 'CAA', 'AGC', 'GTA', 'AGA', 'CTC', 'CAC', 'TAA',
+                               'GCA',
                                'CTA', 'GCC', 'ATG', 'CAG', 'ATA', 'TCA']
             feature_names += tri_nuc_classes
 

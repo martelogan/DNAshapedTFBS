@@ -244,8 +244,12 @@ def custom_train_and_validate_classifier(argu):
     motif_length = len(fg_hits[0])
     feature_names = construct_feature_names_array(argu, motif_length, shape_feature_names)
 
+    # GET PREDICTED BINDING PROBABILITY FOR EACH MOTIF HIT
+    # TODO: add option to exclude this
+    predictions = make_predictions(fitted_classifier, data, fg_hits + bg_hits, 0)
+
     # OUTPUT RESULTS OF EXPERIMENT TO CUMULATIVE AND EXPERIMENT-LOCAL CSVs
-    output_experimental_results(argu, fitted_classifier, motif_length,
+    output_experimental_results(argu, predictions, motif_length,
                                 feature_vector_type, seq_feature_type, feature_names, data, labels)
 
     # OUTPUT FEATURE IMPORTANCES RANKING FOR CURRENT PROTEIN ON FITTED CLASSIFIER

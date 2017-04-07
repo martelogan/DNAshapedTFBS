@@ -21,15 +21,15 @@ for i in "${arr[@]}"
 do
    # IN-MEMORY TRAIN AND TEST (currently applies kfold by default)
    echo "Train and test a PSSM + DNA shape + Flex classifier for protein $i.";
-	time python2.7 ../DNAshapedTFBS_classification.py custom_train_and_apply -f $(echo $(ls -1 PFMs/"$i"/*.pfm)) \
-    -i foreground/fasta/"$i".fa -I foreground/bed/"$i" \
-    -b background/fasta/"$i".fa -B background/bed/"$i" \
-    -o "$i" \
-    --protein "$i" \
-    --feature_vector_type 1 \
-    --exp_name pssmDNA_Shape_Only \
-    --back_type curatedGM12878 \
-    -1 $helt $mgw $prot $roll -2 $helt2 $mgw2 $roll2 -n;
+#	time python2.7 ../DNAshapedTFBS_classification.py custom_train_and_apply -f $(echo $(ls -1 PFMs/"$i"/*.pfm)) \
+#    -i foreground/fasta/"$i".fa -I foreground/bed/"$i" \
+#    -b background/fasta/"$i".fa -B background/bed/"$i" \
+#    -o "$i" \
+#    --protein "$i" \
+#    --feature_vector_type 2 \
+#    --exp_name pssmDNA_Shape_Only \
+#    --back_type curatedGM12878 \
+#    -1 $helt $mgw $prot $roll -2 $helt2 $mgw2 $roll2 -n;
 
     # INDEPENDENT TRAINING + TESTING EXECUTIONS
 #    echo "Training a PSSM + DNA shape classifier.";
@@ -40,10 +40,10 @@ do
 #    --feature_vector_type 2 \
 #    -1 $helt $mgw $prot $roll -2 $helt2 $mgw2 $roll2 -n;
 #
-#    echo "Applying the trained PSSM + DNA shape classifier on foreground sequences.";
-#    time python2.7 ../DNAshapedTFBS_classification.py custom_apply -f $(echo $(ls -1 PFMs/"$i"/*.pfm)) \
-#    -i foreground/fasta/"$i".fa -I foreground/bed/"$i" \
-#    -c "$i".pkl -o "$i"_fg_predictions.txt \
-#    --feature_vector_type 2 \
-#    -1 $helt $mgw $prot $roll -2 $helt2 $mgw2 $roll2 -n;
+    echo "Applying the trained PSSM + DNA shape classifier on foreground sequences.";
+    time python2.7 ../DNAshapedTFBS_classification.py custom_apply -f $(echo $(ls -1 PFMs/"$i"/*.pfm)) \
+    -i foreground/fasta/"$i".fa -I foreground/bed/"$i" \
+    -c "$i".pkl -o "$i"_fg_predictions.txt \
+    --feature_vector_type 2 \
+    -1 $helt $mgw $prot $roll -2 $helt2 $mgw2 $roll2 -n;
 done

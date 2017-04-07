@@ -5,13 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2783bdd2-21c7-4419-a0b1-73ef1aac6ee2" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/561_execution/HSF1_fg_predictions.txt" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/561_execution/test.sh" afterPath="$PROJECT_DIR$/561_execution/test.sh" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/DNAshapedTFBS_argsParsing.py" afterPath="$PROJECT_DIR$/DNAshapedTFBS_argsParsing.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/DNAshapedTFBS_classification.py" afterPath="$PROJECT_DIR$/DNAshapedTFBS_classification.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/DNAshapedTFBS_commonUtils.py" afterPath="$PROJECT_DIR$/DNAshapedTFBS_commonUtils.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/DNAshapedTFBS_constants.py" afterPath="$PROJECT_DIR$/DNAshapedTFBS_constants.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/DNAshapedTFBS_featureVectors.py" afterPath="$PROJECT_DIR$/DNAshapedTFBS_featureVectors.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -26,18 +23,18 @@
       <file leaf-file-name="test.sh" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/561_execution/test.sh">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="291">
-              <caret line="23" column="30" lean-forward="false" selection-start-line="23" selection-start-column="30" selection-end-line="23" selection-end-column="30" />
+            <state relative-caret-position="451">
+              <caret line="46" column="17" lean-forward="true" selection-start-line="46" selection-start-column="17" selection-end-line="46" selection-end-column="17" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="DNAshapedTFBS_classification.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="DNAshapedTFBS_classification.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/DNAshapedTFBS_classification.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-2520">
-              <caret line="108" column="22" lean-forward="true" selection-start-line="108" selection-start-column="22" selection-end-line="108" selection-end-column="22" />
+            <state relative-caret-position="1340">
+              <caret line="250" column="54" lean-forward="false" selection-start-line="250" selection-start-column="54" selection-end-line="250" selection-end-column="54" />
               <folding>
                 <element signature="e#168#204#0" expanded="true" />
               </folding>
@@ -45,21 +42,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="DNAshapedTFBS_commonUtils.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="DNAshapedTFBS_commonUtils.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/DNAshapedTFBS_commonUtils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="136">
-              <caret line="218" column="16" lean-forward="true" selection-start-line="218" selection-start-column="16" selection-end-line="218" selection-end-column="16" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="DNAshapedTFBS_constants.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/DNAshapedTFBS_constants.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="480">
-              <caret line="24" column="21" lean-forward="false" selection-start-line="24" selection-start-column="21" selection-end-line="24" selection-end-column="21" />
+            <state relative-caret-position="4820">
+              <caret line="273" column="34" lean-forward="true" selection-start-line="273" selection-start-column="34" selection-end-line="273" selection-end-column="34" />
               <folding />
             </state>
           </provider>
@@ -68,8 +55,8 @@
       <file leaf-file-name="DNAshapedTFBS_argsParsing.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/DNAshapedTFBS_argsParsing.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="453">
-              <caret line="538" column="40" lean-forward="true" selection-start-line="538" selection-start-column="40" selection-end-line="538" selection-end-column="40" />
+            <state relative-caret-position="-1067">
+              <caret line="435" column="71" lean-forward="false" selection-start-line="435" selection-start-column="71" selection-end-line="435" selection-end-column="71" />
               <folding>
                 <element signature="e#0#76#0" expanded="true" />
               </folding>
@@ -81,8 +68,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>dna_shape_and_tffm_</find>
-      <find>is</find>
       <find>is_eva</find>
       <find>is_eval</find>
       <find>is_eval_</find>
@@ -111,6 +96,8 @@
       <find>argu.outp</find>
       <find>argu.outpu</find>
       <find>argu.output</find>
+      <find>output_exp</find>
+      <find>make_pr</find>
     </findStrings>
     <replaceStrings>
       <replace />
@@ -127,11 +114,11 @@
         <option value="$PROJECT_DIR$/DNAshapedTFBS_featureImportanceHeatmap.py" />
         <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/DNAshapedTFBS_featureVectors.py" />
-        <option value="$PROJECT_DIR$/DNAshapedTFBS_argsParsing.py" />
         <option value="$PROJECT_DIR$/DNAshapedTFBS_constants.py" />
-        <option value="$PROJECT_DIR$/561_execution/test.sh" />
-        <option value="$PROJECT_DIR$/DNAshapedTFBS_commonUtils.py" />
+        <option value="$PROJECT_DIR$/DNAshapedTFBS_argsParsing.py" />
         <option value="$PROJECT_DIR$/DNAshapedTFBS_classification.py" />
+        <option value="$PROJECT_DIR$/DNAshapedTFBS_commonUtils.py" />
+        <option value="$PROJECT_DIR$/561_execution/test.sh" />
       </list>
     </option>
   </component>
@@ -763,8 +750,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/DNAshapedTFBS_argsParsing.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="453">
-          <caret line="538" column="40" lean-forward="true" selection-start-line="538" selection-start-column="40" selection-end-line="538" selection-end-column="40" />
+        <state relative-caret-position="-1067">
+          <caret line="435" column="71" lean-forward="false" selection-start-line="435" selection-start-column="71" selection-end-line="435" selection-end-column="71" />
           <folding>
             <element signature="e#0#76#0" expanded="true" />
           </folding>
@@ -779,29 +766,29 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/DNAshapedTFBS_commonUtils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="136">
-          <caret line="218" column="16" lean-forward="true" selection-start-line="218" selection-start-column="16" selection-end-line="218" selection-end-column="16" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/561_execution/test.sh">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="291">
-          <caret line="23" column="30" lean-forward="false" selection-start-line="23" selection-start-column="30" selection-end-line="23" selection-end-column="30" />
+        <state relative-caret-position="451">
+          <caret line="46" column="17" lean-forward="true" selection-start-line="46" selection-start-column="17" selection-end-line="46" selection-end-column="17" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/DNAshapedTFBS_classification.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2520">
-          <caret line="108" column="22" lean-forward="true" selection-start-line="108" selection-start-column="22" selection-end-line="108" selection-end-column="22" />
+        <state relative-caret-position="1340">
+          <caret line="250" column="54" lean-forward="false" selection-start-line="250" selection-start-column="54" selection-end-line="250" selection-end-column="54" />
           <folding>
             <element signature="e#168#204#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/DNAshapedTFBS_commonUtils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4820">
+          <caret line="273" column="34" lean-forward="true" selection-start-line="273" selection-start-column="34" selection-end-line="273" selection-end-column="34" />
+          <folding />
         </state>
       </provider>
     </entry>
