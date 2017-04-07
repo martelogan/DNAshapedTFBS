@@ -20,7 +20,7 @@ declare -a arr=("HSF1")
 for i in "${arr[@]}"
 do
    # IN-MEMORY TRAIN AND TEST (currently applies kfold by default)
-   echo "Train and test a PSSM + DNA shape + Flex classifier for protein $i.";
+#   echo "Train and test a PSSM + DNA shape + Flex classifier for protein $i.";
 #	time python2.7 ../DNAshapedTFBS_classification.py custom_train_and_apply -f $(echo $(ls -1 PFMs/"$i"/*.pfm)) \
 #    -i foreground/fasta/"$i".fa -I foreground/bed/"$i" \
 #    -b background/fasta/"$i".fa -B background/bed/"$i" \
@@ -43,7 +43,7 @@ do
     echo "Applying the trained PSSM + DNA shape classifier on foreground sequences.";
     time python2.7 ../DNAshapedTFBS_classification.py custom_apply -f $(echo $(ls -1 PFMs/"$i"/*.pfm)) \
     -i foreground/fasta/"$i".fa -I foreground/bed/"$i" \
-    -c "$i".pkl -o "$i"_fg_predictions.txt \
+    -c "$i".pkl -o "$i"\
     --feature_vector_type 2 \
     -1 $helt $mgw $prot $roll -2 $helt2 $mgw2 $roll2 -n;
 done

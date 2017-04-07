@@ -9,6 +9,7 @@ TFFM/
 ghmm/
 ./idea/
 .dir_bash_history
-561_execution/background/*
-561_execution/foreground/*
+*background/*
+*foreground/*
 561_execution/PFMs/*
+561_execution/exp_*/*

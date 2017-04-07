@@ -10,6 +10,7 @@ from DNAshapedTFBS_argsParsing import *
 from DNAshapedTFBS_featureVectors import *
 from DNAshapedTFBS_commonUtils import *
 from DNAshapedTFBS_constants import *
+from sklearn_gbmi import *
 
 # Local environment config
 # TODO: Test if TFFM is installed instead of using local env.
@@ -115,6 +116,8 @@ def apply_classifier(argu, motif_hits, feature_vector_type, seq_feature_type):
     # Two options: 1) doing sequence by sequence but it means doing a lot of
     # bwtool calls and I/O, 2) doing all sequences as one batch but means that
     # we need to associate back probas to hits. I chose 2) to reduce I/O. - by Mathelier
+    import pandas as pd
+    import csv
 
     dna_shapes_matrix = None
     if feature_vector_type in DNA_SHAPE_FEATURE_TYPE_CONSTANTS:  # Include DNA Shape features
@@ -129,9 +132,18 @@ def apply_classifier(argu, motif_hits, feature_vector_type, seq_feature_type):
     else:
         test_data_feature_vectors = get_feature_vectors(argu, feature_vector_type, seq_feature_type,
                                                         motif_hits, dna_shapes_matrix)
+
+    pds_dataset = pd.DataFrame(np.array(test_data_feature_vectors))
+    pds_dataset.columns = construct_feature_names_array(argu, len(motif_hits[0]), shape_feature_names)
+    h_stats = h_all_pairs(classifier, pds_dataset)
+    with open(argu.output + '_interaction_stats.csv', 'w') as csv_file:
+        writer = csv.writer(csv_file)
+        for key, value in h_stats.items():
+            writer.writerow([key[0],key[1], value])
+
     # To output results, we must first associate our probas to the motif hits
     predictions = make_predictions(classifier, test_data_feature_vectors, motif_hits, argu.threshold)
-    output_classifier_predictions(predictions, argu.output)
+    output_classifier_predictions(predictions, argu.output + '_predictions.txt')
 
 
 def dna_shape_and_pssm_apply_classifier(argu):
