@@ -25,7 +25,10 @@ do
     -i foreground/fasta/"$i".fa -I foreground/bed/"$i" \
     -b background/fasta/"$i".fa -B background/bed/"$i" \
     -o "$i" \
-    --feature_vector_type 2 \
+    --protein "$i" \
+    --feature_vector_type 1 \
+    --exp_name pssmDNA_Shape_Only \
+    --back_type curatedGM12878 \
     -1 $helt $mgw $prot $roll -2 $helt2 $mgw2 $roll2 -n;
 
     # INDEPENDENT TRAINING + TESTING EXECUTIONS

@@ -6,7 +6,7 @@ from DNAshapedTFBS_classification import dna_shape_and_tffm_apply_classifier
 from DNAshapedTFBS_classification import dna_shape_and_pssm_apply_classifier
 from DNAshapedTFBS_classification import dna_shape_and_binary_apply_classifier
 from DNAshapedTFBS_classification import custom_apply_classifier
-from DNAshapedTFBS_classification import custom_train_and_apply_classifier
+from DNAshapedTFBS_classification import custom_train_and_validate_classifier
 
 # TODO: change 2nd order nargs to 4 where appropriate when we re-download MGW2
 
@@ -364,7 +364,7 @@ def custom_train_args_parsing(subparsers):
     parser_t.add_argument('-e', '--extension', required=False, type=int,
                           dest='extension', action='store', default=0,
                           help=help_str)
-    parser_t.set_defaults(func=custom_train_and_apply_classifier)
+    parser_t.set_defaults(func=custom_train_and_validate_classifier)
     help_str = 'Type of feature vector to construct\n'
     help_str += '(0 = seq_and_dna_shape| 1 = dna_shape_only | 2 = dna_shape_and_flexibility)'
     help_str += ' (default : 0).'
@@ -456,7 +456,7 @@ def custom_apply_args_parsing(subparsers):
     parser_a.set_defaults(func=custom_apply_classifier)
 
 
-def custom_train_and_apply_arg_parsing(subparsers):
+def custom_train_and_validate_args_parsing(subparsers):
     """ Train and apply the PSSM + DNA shape classifier. """
     help_str = "Train and apply the PSSM + DNA shape classifier."
     parser_t = subparsers.add_parser('custom_train_and_apply', help=help_str)
@@ -504,7 +504,7 @@ def custom_train_and_apply_arg_parsing(subparsers):
     parser_t.add_argument('-e', '--extension', required=False, type=int,
                           dest='extension', action='store', default=0,
                           help=help_str)
-    parser_t.set_defaults(func=custom_train_and_apply_classifier)
+    parser_t.set_defaults(func=custom_train_and_validate_classifier)
     help_str = 'Type of feature vector to construct\n'
     help_str += '(0 = seq_and_dna_shape| 1 = dna_shape_only | 2 = dna_shape_and_flexibility)'
     help_str += ' (default : 0).'
@@ -520,10 +520,23 @@ def custom_train_and_apply_arg_parsing(subparsers):
     help_str = 'Are we evaluating flexibility with a wrapper function?\n'
     help_str += '(0 = False | 1 = True)'
     help_str += ' (default : 0).'
-    parser_t.add_argument('-E', '--is_eval_f', required=False, type=int,
-                          dest='is_eval_f', action='store', default=0,
+    parser_t.add_argument('-E', '--is_eval_f', required=False, type=bool,
+                          dest='is_eval_f', action='store', default=False,
                           help=help_str)
-    parser_t.set_defaults(func=custom_train_and_apply_classifier)
+    help_str = 'Optional experiment name (prepended to cumulative csvs)'
+    parser_t.add_argument('-N', '--exp_name', required=False, type=str,
+                          dest='exp_name', action='store', default='',
+                          help=help_str)
+    parser_t.set_defaults(func=custom_train_and_validate_classifier)
+    help_str = 'Optional background name (prepended to cumulative csvs)'
+    parser_t.add_argument('-Q', '--back_type', required=False, type=str,
+                          dest='background_type', action='store', default='',
+                          help=help_str)
+    help_str = 'Optional protein name (-o value will be used if not specified)'
+    parser_t.add_argument('-P', '--protein', required=False, type=str,
+                          dest='protein', action='store', default='',
+                          help=help_str)
+    parser_t.set_defaults(func=custom_train_and_validate_classifier)
 
 
 def arg_parsing():
@@ -547,6 +560,6 @@ def arg_parsing():
     binary_apply_args_parsing(subparsers)
     custom_train_args_parsing(subparsers)
     custom_apply_args_parsing(subparsers)
-    custom_train_and_apply_arg_parsing(subparsers)
+    custom_train_and_validate_args_parsing(subparsers)
     argu = parser.parse_args()
     return argu

@@ -33,10 +33,10 @@ def fit_classifier(argu, fg_training_motif_hits, fg_training_dna_shapes_matrix, 
                    bg_training_dna_shapes_matrix, feature_vector_type, seq_feature_type):
     """ Fit the classifier to the training data. """
     from sklearn.ensemble import GradientBoostingClassifier
-    fg_train = get_feature_vector(argu, feature_vector_type, seq_feature_type,
-                                  fg_training_motif_hits, fg_training_dna_shapes_matrix)
-    bg_train = get_feature_vector(argu, feature_vector_type, seq_feature_type,
-                                  bg_training_motif_hits, bg_training_dna_shapes_matrix)
+    fg_train = get_feature_vectors(argu, feature_vector_type, seq_feature_type,
+                                   fg_training_motif_hits, fg_training_dna_shapes_matrix)
+    bg_train = get_feature_vectors(argu, feature_vector_type, seq_feature_type,
+                                   bg_training_motif_hits, bg_training_dna_shapes_matrix)
     data, labels = construct_classifier_input(fg_train, bg_train)
     classifier = GradientBoostingClassifier()
     classifier.fit(data, labels)
@@ -53,11 +53,11 @@ def train_classifier(argu, fg_hits, bg_hits, feature_vector_type, seq_feature_ty
     """ Train the DNAshape-based classifier and dump the python object to a temporary file"""
     fg_dna_shapes_matrix = None
     bg_dna_shapes_matrix = None
-    if feature_vector_type in DNA_SHAPE_FEATURE_TYPE_CONSTANTS: # Include DNA Shape features
-        fg_dna_shapes_matrix = get_motif_dna_shapes_vector(fg_hits, argu.fg_bed, argu.shape_first_order,
-                                                argu.shape_second_order, argu.extension, argu.scaled)
-        bg_dna_shapes_matrix = get_motif_dna_shapes_vector(bg_hits, argu.bg_bed, argu.shape_first_order,
-                                                argu.shape_second_order, argu.extension, argu.scaled)
+    if feature_vector_type in DNA_SHAPE_FEATURE_TYPE_CONSTANTS:  # Include DNA Shape features
+        fg_dna_shapes_matrix = get_motif_dna_shapes_matrix(fg_hits, argu.fg_bed, argu.shape_first_order,
+                                                           argu.shape_second_order, argu.extension, argu.scaled)
+        bg_dna_shapes_matrix = get_motif_dna_shapes_matrix(bg_hits, argu.bg_bed, argu.shape_first_order,
+                                                           argu.shape_second_order, argu.extension, argu.scaled)
     # NOTE: DNA Shape Matrices might be null below if our classifier does not use them
     if seq_feature_type == BINARY_ENCODING_TYPE_CONSTANT:  # Binary encoding
         classifier = fit_classifier(argu, encode_hits(fg_hits), fg_dna_shapes_matrix, encode_hits(bg_hits),
@@ -117,18 +117,18 @@ def apply_classifier(argu, motif_hits, feature_vector_type, seq_feature_type):
     # we need to associate back probas to hits. I chose 2) to reduce I/O. - by Mathelier
 
     dna_shapes_matrix = None
-    if feature_vector_type in DNA_SHAPE_FEATURE_TYPE_CONSTANTS: # Include DNA Shape features
-        dna_shapes_matrix = get_motif_dna_shapes_vector(motif_hits, argu.in_bed, argu.shape_first_order,
-                                              argu.shape_second_order, argu.extension, argu.scaled)
+    if feature_vector_type in DNA_SHAPE_FEATURE_TYPE_CONSTANTS:  # Include DNA Shape features
+        dna_shapes_matrix = get_motif_dna_shapes_matrix(motif_hits, argu.in_bed, argu.shape_first_order,
+                                                        argu.shape_second_order, argu.extension, argu.scaled)
     # RELOAD OUR CLASSIFIER
     classifier = joblib.load(argu.classifier)
     # NOTE: DNA Shape Matrix might be null below if our classifier does not use it
     if seq_feature_type == BINARY_ENCODING_TYPE_CONSTANT:  # Binary encoding
-        test_data_feature_vectors = get_feature_vector(argu, feature_vector_type, seq_feature_type,
-                                                       encode_hits(motif_hits), dna_shapes_matrix)
+        test_data_feature_vectors = get_feature_vectors(argu, feature_vector_type, seq_feature_type,
+                                                        encode_hits(motif_hits), dna_shapes_matrix)
     else:
-        test_data_feature_vectors = get_feature_vector(argu, feature_vector_type, seq_feature_type,
-                                                       motif_hits, dna_shapes_matrix)
+        test_data_feature_vectors = get_feature_vectors(argu, feature_vector_type, seq_feature_type,
+                                                        motif_hits, dna_shapes_matrix)
     # To output results, we must first associate our probas to the motif hits
     predictions = make_predictions(classifier, test_data_feature_vectors, motif_hits, argu.threshold)
     output_classifier_predictions(predictions, argu.output)
@@ -190,69 +190,83 @@ def custom_apply_classifier(argu):
 # ********************
 
 
-def custom_train_and_apply_classifier(argu):
+def custom_train_and_validate_classifier(argu):
     from sklearn.ensemble import GradientBoostingClassifier
     from sklearn.model_selection import StratifiedKFold
+
+    feature_vector_type = argu.feature_vector_type
+    seq_feature_type = argu.seq_feature
 
     # ********************
     # TRAIN CLASSIFIER
     # ********************
 
+    # DATA CURATION
+
     fg_hits = get_motif_hits(argu, argu.fg_fasta, True)
     bg_hits = get_motif_hits(argu, argu.bg_fasta, False)
 
-    fg_shapes = get_motif_dna_shapes_vector(fg_hits, argu.fg_bed, argu.shape_first_order,
-                                            argu.shape_second_order, argu.extension, argu.scaled)
-    bg_shapes = get_motif_dna_shapes_vector(bg_hits, argu.bg_bed, argu.shape_first_order,
-                                            argu.shape_second_order, argu.extension, argu.scaled)
+    fg_dna_shapes_matrix = None
+    bg_dna_shapes_matrix = None
+    if feature_vector_type in DNA_SHAPE_FEATURE_TYPE_CONSTANTS:  # Include DNA Shape features
+        fg_dna_shapes_matrix = get_motif_dna_shapes_matrix(fg_hits, argu.fg_bed, argu.shape_first_order,
+                                                       argu.shape_second_order, argu.extension, argu.scaled)
+        bg_dna_shapes_matrix = get_motif_dna_shapes_matrix(bg_hits, argu.bg_bed, argu.shape_first_order,
+                                                       argu.shape_second_order, argu.extension, argu.scaled)
 
-    foreground_data = get_feature_vector(argu, argu.feature_vector_type, argu.seq_feature, fg_hits, fg_shapes)
-    background_data = get_feature_vector(argu, argu.feature_vector_type, argu.seq_feature, bg_hits, bg_shapes)
+    # NOTE: DNA Shape Matrices might be null below if our classifier does not use them
+    if seq_feature_type == BINARY_ENCODING_TYPE_CONSTANT:  # Binary encoding
+        foreground_data = get_feature_vectors(argu, argu.feature_vector_type, argu.seq_feature,
+                                              encode_hits(fg_hits), fg_dna_shapes_matrix)
+        background_data = get_feature_vectors(argu, argu.feature_vector_type, argu.seq_feature,
+                                              encode_hits(bg_hits), bg_dna_shapes_matrix)
+    else:  # some other feature vector type
+        foreground_data = get_feature_vectors(argu, argu.feature_vector_type, argu.seq_feature,
+                                              fg_hits, fg_dna_shapes_matrix)
+        background_data = get_feature_vectors(argu, argu.feature_vector_type, argu.seq_feature,
+                                              bg_hits, bg_dna_shapes_matrix)
+
+    # TODO: add option to exclude below data curation
     foreground_data, background_data = match_feature_vector_length(foreground_data, background_data)
 
     data, labels = construct_classifier_input(foreground_data, background_data)
 
+    # MODEL FITTING (PERSIST TO FILESYSTEM IN CASE WE DECIDE TO REUSE)
+
+    # Machine learning estimator to fit and persist to filesystem
+    fitted_classifier = GradientBoostingClassifier()
+    fitted_classifier.fit(data, labels)
+
+    # Persist the python classifier object in a temporary file
+    joblib.dump(fitted_classifier, '{0}.pkl'.format(argu.output))
+
     # Get array of active feature names
-    feature_names = construct_feature_names_array(argu, len(fg_hits[0]), shape_feature_names)
+    motif_length = len(fg_hits[0])
+    feature_names = construct_feature_names_array(argu, motif_length, shape_feature_names)
 
-    output_data_vectors(argu, feature_names, data, labels)
+    # OUTPUT RESULTS OF EXPERIMENT TO CUMULATIVE AND EXPERIMENT-LOCAL CSVs
+    output_experimental_results(argu, fitted_classifier, motif_length,
+                                feature_vector_type, seq_feature_type, feature_names, data, labels)
 
-    # Machine learning estimator
-    classifier = GradientBoostingClassifier()
+    # OUTPUT FEATURE IMPORTANCES RANKING FOR CURRENT PROTEIN ON FITTED CLASSIFIER
+    output_classifier_feature_importances(argu, fitted_classifier, np.array(data), feature_names)
+
+    # EXECUTE KFOLD CROSS-VALIDATION
+    # TODO: add option to exclude kfold
+
+    # Machine learning estimator for kfold validation
+    k_fold_classifier = GradientBoostingClassifier()
 
     # Cross-validation parameter
+    # TODO: parametrize to user
     cv = StratifiedKFold(n_splits=5)
 
-    # K_fold execution
-    k_fold_classification(argu, data, labels, classifier, cv, feature_names)
-
-    # *******************************
-    # APPLY CLASSIFIER - FOREGROUND
-    # *******************************
-
-    # hits = find_pssm_hits(pssm, internalArgu.in_fasta, True)
-    # if hits:
-    #     apply_classifier(hits, internalArgu)
-    # else:
-    #     with open(internalArgu.output, 'w') as stream:
-    #         stream.write('No hit predicted\n')
-
-    # *******************************
-    # APPLY CLASSIFIER - BACKGROUND
-    # *******************************
-
-    # internalArgu.in_fasta = internalArgu.bg_fasta
-    # internalArgu.in_bed = internalArgu.bg_bed
-
-    # hits = find_pssm_hits(pssm, internalArgu.in_fasta, False)
-    # if hits:
-    #     apply_classifier(hits, internalArgu)
-    # else:
-    #     with open(internalArgu.output, 'w') as stream:
-    #         stream.write('No hit predicted\n')
+    # K_fold execution (outputs roc & prc curves by default)
+    k_fold_classification(argu, argu.feature_vector_type, argu.seq_feature,
+                          data, labels, k_fold_classifier, cv)
 
 
-def k_fold_classification(argu, data, labels, classifier, cv, feature_names):
+def k_fold_classification(argu, feature_vector_type, seq_feature_type, data, labels, classifier, cv):
     import numpy as np
     import matplotlib.pyplot as plt
     from itertools import cycle
@@ -324,10 +338,7 @@ def k_fold_classification(argu, data, labels, classifier, cv, feature_names):
     mean_auroc = aggregate_k_roc_folds(argu, n_splits)
 
     # OUTPUT PRC_ROC PNG & AUPRC/AUROC VALS FOR CURRENT PROTEIN
-    output_k_fold_prc_roc_results(argu, mean_auprc, mean_auroc)
-
-    # OUTPUT FEATURE IMPORTANCES RANKING FOR CURRENT PROTEIN
-    output_classifier_feature_importances(argu, classifier, data, labels, feature_names)
+    output_k_fold_prc_roc_results(argu, feature_vector_type, seq_feature_type, mean_auprc, mean_auroc)
 
 
 ##############################################################################

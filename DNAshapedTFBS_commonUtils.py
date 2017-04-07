@@ -11,7 +11,7 @@ from Bio import trie
 from Bio import triefind
 from sklearn.metrics import auc
 
-from DNAshapedTFBS_constants import BWTOOL, DNASHAPEINTER
+from DNAshapedTFBS_constants import *
 
 from itertools import cycle
 
@@ -120,22 +120,154 @@ def get_jaspar_pssm(jaspar, bool_id=True):
     return motif.pssm
 
 
-# FEATURE VECTOR I/O
+# FEATURE VECTORS I/O
 
-def output_data_vectors(argu, feature_names, data, labels):
+
+def feature_vector_type_to_string(feature_vector_type):
+    if feature_vector_type == SEQ_AND_DNA_SHAPE_TYPE_CONSTANT:
+        return 'seq_and_dna_shape'
+    elif feature_vector_type == DNA_SHAPE_ONLY_TYPE_CONSTANT:
+        return 'dna_shape_only'
+    elif feature_vector_type == DNA_SHAPE_AND_FLEX_TYPE_CONSTANT:
+        return 'dna_shape_and_flex'
+    elif feature_vector_type == SEQ_AND_FLEX_TYPE_CONSTANT:
+        return 'seq_and_flex'
+    elif feature_vector_type == FLEX_ONLY_TYPE_CONSTANT:
+        return 'flex_only'
+
+
+def seq_feature_type_to_string(seq_feature_type):
+    if seq_feature_type == PSSM_SCORE_TYPE_CONSTANT:
+        return 'pssm_only'
+    elif seq_feature_type == TFFM_SCORE_TYPE_CONSTANT:
+        return 'tffm_only'
+    elif seq_feature_type == BINARY_ENCODING_TYPE_CONSTANT:
+        return 'seq_binary_encoding_only'
+
+
+def all_feature_names():
+    feature_names = []
+
+    # Append sequence feature
+    feature_names += ['Seq_Feature_Value']
+
+    for shapeName in SHAPE_FEATURE_NAMES:
+        for position in xrange(MAX_MOTIF_LENGTH):
+            feature_names += [shapeName + ' - ' + str(position)]
+
+    flexibility_eval_function_str = ['Flex_Eval_Function']
+    feature_names += flexibility_eval_function_str
+    tri_nuc_classes = ['AAT', 'AAA', 'CCA', 'AAC', 'ACT', 'CCG', 'ATC', 'AAG', 'CGC', 'AGG', 'GAA', 'ACG', 'ACC',
+                       'GAC', 'CCC', 'ACA', 'CGA', 'GGA', 'CAA', 'AGC', 'GTA', 'AGA', 'CTC', 'CAC', 'TAA', 'GCA',
+                       'CTA', 'GCC', 'ATG', 'CAG', 'ATA', 'TCA']
+    feature_names += tri_nuc_classes
+
+    return feature_names
+
+
+def format_data_instance(argu, motif_length, data_instance):
+    is_eval_f = \
+        True if argu.feature_vector_type == DNA_SHAPE_AND_FLEX_TYPE_CONSTANT \
+        and argu.is_eval_f else False
+
+    formatted_data_instance = [''] * ALL_FEATURES_COUNT
+    formatted_data_instance_index = 0
+    data_instance_index = 0
+    feature_vector_type = argu.feature_vector_type
+    if feature_vector_type not in SEQ_FEATURE_INCLUDED_CONSTANTS:
+        formatted_data_instance[0] = 'N/A'
+        formatted_data_instance_index += 1
+    else:
+        formatted_data_instance[0] = data_instance[0]
+        formatted_data_instance_index += 1
+        data_instance_index += 1
+
+    if feature_vector_type in DNA_SHAPE_FEATURE_TYPE_CONSTANTS:
+        for shapeName in SHAPE_FEATURE_NAMES:
+            for position in xrange(motif_length):
+                formatted_data_instance[formatted_data_instance_index] = data_instance[data_instance_index]
+                formatted_data_instance_index += 1
+                data_instance_index += 1
+            for position in xrange(MAX_MOTIF_LENGTH - motif_length):
+                formatted_data_instance[formatted_data_instance_index] = 'N/A'
+                formatted_data_instance_index += 1
+    else:
+        for shapeName in SHAPE_FEATURE_NAMES:
+            for position in xrange(MAX_MOTIF_LENGTH):
+                formatted_data_instance[formatted_data_instance_index] = 'N/A'
+                formatted_data_instance_index += 1
+
+    if feature_vector_type in FLEXIBILITY_TYPE_CONSTANTS:
+        if is_eval_f:  # we used the eval function feature
+            formatted_data_instance[formatted_data_instance_index] = data_instance[data_instance_index]
+            formatted_data_instance_index += 1
+            data_instance_index += 1
+            for position in xrange(len(TRI_NUC_CLASSES)):
+                formatted_data_instance[formatted_data_instance_index] = 'N/A'
+                formatted_data_instance_index += 1
+        else:  # we used the trinucleotide counts directly
+            formatted_data_instance[formatted_data_instance_index] = 'N/A'
+            formatted_data_instance_index += 1
+            for position in xrange(len(TRI_NUC_CLASSES)):
+                formatted_data_instance[formatted_data_instance_index] = data_instance[data_instance_index]
+                formatted_data_instance_index += 1
+                data_instance_index += 1
+
+    return formatted_data_instance
+
+
+def output_experimental_results(argu, fitted_classifier, motif_length, feature_vector_type,
+                                seq_feature_type, feature_names, data, labels):
     import csv
 
-    # SAVE SOME VALUES TO CSV
+    # Write data to protein-specific file
     # protein, feature_vector, label
     csv_title = argu.output + '_DATA_INSTANCES.csv'
-    with open(r''+csv_title, 'a') as f:
+    with open(r''+csv_title, 'w') as f:
         writer = csv .writer(f)
-        headers = ['Protein'] + feature_names + ['Classification']
+        headers = ['Protein', 'Classification'] + feature_names
         writer.writerow(headers)
         i = 0
         for data_instance in data:
             writer = csv.writer(f)
-            fields = [argu.output] + data_instance + [labels[i]]
+            label = labels[i]
+            label_str = 'NotBound' if label == 0 else 'Bound'
+            try:
+                protein_name = argu.protein
+            except AttributeError:
+                protein_name = argu.output
+            fields = [protein_name, label_str] + data_instance
+            i += 1
+            writer.writerow(fields)
+    # Append data to cumulative experiments file
+    if not os.path.isfile(CUMULATIVE_EXPERIMENTS_PATH):
+        with open(r'' + CUMULATIVE_EXPERIMENTS_PATH, 'w') as f:
+            writer = csv.writer(f)
+            headers = ['Experiment_Name', 'Feature_Vector_Type', 'Sequence_Feature_Type', 'Background_Type',
+                       'Protein', 'Classification'] + all_feature_names()
+            writer.writerow(headers)
+    with open(r'' + CUMULATIVE_EXPERIMENTS_PATH, 'a') as f:
+        i = 0
+        for data_instance in data:
+            writer = csv.writer(f)
+            feature_vector_type_str = feature_vector_type_to_string(feature_vector_type)
+            seq_feature_type_str = seq_feature_type_to_string(seq_feature_type)
+            try:
+                exp_name = argu.exp_name
+            except AttributeError:
+                exp_name = 'Unnamed'
+            try:
+                background_type_str = argu.background_type
+            except AttributeError:
+                background_type_str = 'N/A'
+            titles = [exp_name, feature_vector_type_str, seq_feature_type_str, background_type_str]
+            label = labels[i]
+            label_str = 'NotBound' if label == 0 else 'Bound'
+            try:
+                protein_name = argu.protein
+            except AttributeError:
+                protein_name = argu.output
+            fields = titles + [protein_name, label_str] + format_data_instance(argu, motif_length, data_instance)
             i += 1
             writer.writerow(fields)
 
@@ -298,17 +430,37 @@ def aggregate_k_roc_folds(argu, n_splits):
     return mean_auroc
 
 
-def output_k_fold_prc_roc_results(argu, mean_auprc, mean_auroc):
+def output_k_fold_prc_roc_results(argu, feature_vector_type, seq_feature_type, mean_auprc, mean_auroc):
     import csv
     fig.savefig(argu.output + "_prc_roc.png", bbox_inches='tight')
 
-    # SAVE SOME VALUES TO CSV
-    # protein, avg AUPRC, avg AUROC
-    fields = [argu.output, str(mean_auprc), str(mean_auroc)]
-    csv_title = 'AUPRC_AUROC.csv'
-    with open(r''+csv_title, 'a') as f:
+    # WRITE AVERAGE VALUES FOR THIS EXPERIMENT TO CSV
+    if not os.path.isfile(CUMULATIVE_AUPRC_AUROC_PATH):
+        with open(r'' + CUMULATIVE_AUPRC_AUROC_PATH, 'w') as f:
+            writer = csv.writer(f)
+            headers = ['Experiment_Name', 'Feature_Vector_Type', 'Sequence_Feature_Type',
+                       'Background_Type', 'Protein', 'AUPRC', 'AUROC']
+            writer.writerow(headers)
+    feature_vector_type_str = feature_vector_type_to_string(feature_vector_type)
+    seq_feature_type_str = seq_feature_type_to_string(seq_feature_type)
+    try:
+        exp_name = argu.exp_name
+    except AttributeError:
+        exp_name = 'Unnamed'
+    try:
+        background_type_str = argu.background_type
+    except AttributeError:
+        background_type_str = 'N/A'
+    titles = [exp_name, feature_vector_type_str, seq_feature_type_str, background_type_str]
+    try:
+        protein_name = argu.protein
+    except AttributeError:
+        protein_name = argu.output
+    fields = titles + [protein_name, str(mean_auprc), str(mean_auroc)]
+    with open(r''+CUMULATIVE_AUPRC_AUROC_PATH, 'a') as f:
         writer = csv.writer(f)
         writer.writerow(fields)
+
 
 # FEATURE IMPORTANCE I/O
 
@@ -316,52 +468,59 @@ def output_k_fold_prc_roc_results(argu, mean_auprc, mean_auroc):
 def construct_feature_names_array(argu, motif_length, shape_feature_names):
     print "\n\nOur shape features:", shape_feature_names
     print "\n\nOur motif length:", motif_length
-    is_eval_f = True if argu.feature_vector_type == 2 and argu.is_eval_f == 1 else False
-    feature_names = []
+    is_eval_f = \
+        True if argu.feature_vector_type == DNA_SHAPE_AND_FLEX_TYPE_CONSTANT \
+        and argu.is_eval_f else False
 
-    if argu.feature_vector_type == 0:
+    feature_names = []
+    feature_vector_type = argu.feature_vector_type
+    if feature_vector_type in SEQ_FEATURE_INCLUDED_CONSTANTS:
         seq_feature = argu.seq_feature
-        if seq_feature == 0:  # PSSM
+        if seq_feature == PSSM_SCORE_TYPE_CONSTANT:  # PSSM
             feature_names += ['PSSM_SCORE']
-        elif seq_feature == 1:  # TFFM
+        elif seq_feature == TFFM_SCORE_TYPE_CONSTANT:  # TFFM
             feature_names += ['TFFM_SCORE']
-        elif seq_feature == 2: # Binary encoding
+        elif seq_feature == BINARY_ENCODING_TYPE_CONSTANT:  # Binary encoding
             feature_names += ['SEQUENCE_ENCODING']
 
-    for shapeName in shape_feature_names:
-        feature_names += [shapeName] * motif_length
+    if feature_vector_type in DNA_SHAPE_FEATURE_TYPE_CONSTANTS:
+        for shapeName in shape_feature_names:
+            for position in xrange(motif_length):
+                feature_names += [shapeName + ' - ' + str(position)]
 
-    if is_eval_f:  # we used the eval function feature
-        flexibility_eval_function_str = ['Flex_Eval_Function']
-        feature_names += flexibility_eval_function_str
-    else:  # we used the trinucleotide counts directly
-        tri_nuc_classes = ['AAT', 'AAA', 'CCA', 'AAC', 'ACT', 'CCG', 'ATC', 'AAG', 'CGC', 'AGG', 'GAA', 'ACG', 'ACC',
-                           'GAC', 'CCC', 'ACA', 'CGA', 'GGA', 'CAA', 'AGC', 'GTA', 'AGA', 'CTC', 'CAC', 'TAA', 'GCA',
-                           'CTA', 'GCC', 'ATG', 'CAG', 'ATA', 'TCA']
-        feature_names += tri_nuc_classes
+    if feature_vector_type in FLEXIBILITY_TYPE_CONSTANTS:
+        if is_eval_f:  # we used the eval function feature
+            flexibility_eval_function_str = ['Flex_Eval_Function']
+            feature_names += flexibility_eval_function_str
+        else:  # we used the trinucleotide counts directly
+            tri_nuc_classes = ['AAT', 'AAA', 'CCA', 'AAC', 'ACT', 'CCG', 'ATC', 'AAG', 'CGC', 'AGG', 'GAA', 'ACG', 'ACC',
+                               'GAC', 'CCC', 'ACA', 'CGA', 'GGA', 'CAA', 'AGC', 'GTA', 'AGA', 'CTC', 'CAC', 'TAA', 'GCA',
+                               'CTA', 'GCC', 'ATG', 'CAG', 'ATA', 'TCA']
+            feature_names += tri_nuc_classes
 
     return feature_names
 
 
-def output_classifier_feature_importances(argu, classifier, data, labels, feature_names):
+def output_classifier_feature_importances(argu, classifier, data, feature_names):
     import datetime as dt
     import numpy as np
     import csv
-    classifier.fit(data, labels)
     importances = classifier.feature_importances_
-    # for n_estimators, loss_k = classifier.estimators_
-    # std = np.std([tree.feature_importances_ for tree in n_estimators],
-    #             axis=0)
     indices = np.argsort(importances)[::-1]
-
+    with open(r'' + argu.output + '_FEATURE_IMPORTANCES.csv', 'w') as feature_importances_file:
+        writer = csv.writer(feature_importances_file)
+        headers = ['Day - Hour', 'Protein', 'Feature_Name', 'Importance_Value']
+        writer.writerow(headers)
     # NOTE: data.shape[1] below is a call to numpy for the dimension m of our n x m data matrix
     for row_number in range(data.shape[1]):
-        # SAVE SOME VALUES TO CSV
         date_hour = '{}'.format(dt.datetime.today().day) + ' - ' + '{}'.format(dt.datetime.today().hour)
         # date-hour, protein, featureName, importance
-        fields = [date_hour, argu.output, feature_names[indices[row_number] - 1], importances[indices[row_number]]]
-        with open(r'FEATURE_IMPORTANCES.c'
-                  r'sv', 'a') as feature_importances_file:
+        try:
+            protein_name = argu.protein
+        except AttributeError:
+            protein_name = argu.output
+        fields = [date_hour, protein_name, feature_names[indices[row_number] - 1], importances[indices[row_number]]]
+        with open(r'' + argu.output + '_FEATURE_IMPORTANCES.csv', 'a') as feature_importances_file:
             writer = csv.writer(feature_importances_file)
             writer.writerow(fields)
 
@@ -370,14 +529,15 @@ def output_classifier_feature_importances(argu, classifier, data, labels, featur
 
 
 def get_motif_hits(argu, seq_file, is_foreground):
-    seq_feature = argu.seq_feature
-    if seq_feature == 0 or seq_feature == 2:  # PSSM or Encoding
+    seq_feature_type = argu.seq_feature
+    if seq_feature_type == PSSM_SCORE_TYPE_CONSTANT \
+            or seq_feature_type == BINARY_ENCODING_TYPE_CONSTANT:  # PSSM or Encoding
         if argu.jasparid:
             pssm = get_jaspar_pssm(argu.jasparid)
         else:
             pssm = get_jaspar_pssm(argu.jasparfile, False)
         return find_pssm_hits(pssm, seq_file, is_foreground)
-    elif seq_feature == 1:  # TFFM
+    elif seq_feature_type == TFFM_SCORE_TYPE_CONSTANT:  # TFFM
         return find_tffm_hits(argu.tffm_file, seq_file, argu.tffm_kind)
 
 
@@ -489,7 +649,7 @@ def get_score_of_dna_shape(in_file, shape=None, scaled=False):
         return scores
 
 
-def get_motif_dna_shapes_vector(motif_hits, bed_file, shape_first_order,
+def get_motif_dna_shapes_matrix(motif_hits, bed_file, shape_first_order,
                                 shape_second_order, extension=0, scaled=False):
     """ Retrieve DNAshape feature values for the hits. """
     import subprocess
@@ -505,7 +665,7 @@ def get_motif_dna_shapes_vector(motif_hits, bed_file, shape_first_order,
         # MODIFIED HERE TO REMOVE MGW2
         shapes = ['HelT', 'ProT', 'MGW', 'Roll', 'HelT2', 'ProT2',
                   'Roll2']
-        motif_dna_shapes_vector = []
+        dna_shapes_matrix = []
         for indx, bigwig in enumerate(bigwigs):
             if bigwig:
                 out_file = '{0}.{1}'.format(tmp_file, shapes[indx])
@@ -516,15 +676,15 @@ def get_motif_dna_shapes_vector(motif_hits, bed_file, shape_first_order,
                 except:
                     print("THERE WAS AN ERROR READING THIS BW FILE")
                 if indx < 4:
-                    motif_dna_shapes_vector.append(get_score_of_dna_shape(out_file, shapes[indx], scaled))
+                    dna_shapes_matrix.append(get_score_of_dna_shape(out_file, shapes[indx], scaled))
                 else:
-                    motif_dna_shapes_vector.append(get_score_of_dna_shape(out_file, shapes[indx]))
+                    dna_shapes_matrix.append(get_score_of_dna_shape(out_file, shapes[indx]))
         subprocess.call(['rm', '-f', '{0}.HelT'.format(tmp_file),
                          '{0}.MGW'.format(tmp_file), '{0}.ProT'.format(tmp_file),
                          '{0}.Roll'.format(tmp_file), '{0}.HelT2'.format(tmp_file),
                          '{0}.ProT2'.format(tmp_file), '{0}.Roll2'.format(tmp_file), tmp_file])
 
-        return motif_dna_shapes_vector
+        return dna_shapes_matrix
 
 
 # HELPER FUNCTIONS FOR PROMOTER REGION FLEXIBILITY EVALUATION
@@ -555,7 +715,7 @@ def seq_splice(seq, w_start, w_end, ext_size):
     return pos_start, pos_end
 
 
-def get_promoter_region_flex_vector(hits, is_eval_f):
+def get_promoter_region_flex_matrix(motif_hits, is_eval_f):
     """ evaluate promoter region of hits """
     from itertools import product
     from Bio.Seq import Seq
@@ -583,13 +743,13 @@ def get_promoter_region_flex_vector(hits, is_eval_f):
             compl_word = str(word_seq_record.reverse_complement())
             tr_eval[word] = bending_propensity
             tr_eval[compl_word] = bending_propensity
-    else:  # counts trie
+    else:  # trinucleotide_counts trie
         # Enumerate all trinucleotide keys
         alphabet = unambiguousDNA()
         trinucleotide_words = [''.join(i) for i in product(alphabet.letters, repeat=3)]
     # Iteratively evaluate promoter regions of hits
-    flex_vector = []
-    for hit in hits:
+    flex_matrix = []
+    for hit in motif_hits:
         if hit:
             hit_seq = hit.seq_record.seq
             # print "Sequence length:", len(hit_seq)
@@ -603,9 +763,9 @@ def get_promoter_region_flex_vector(hits, is_eval_f):
                 for word in triefind.find(ext_seq, tr_eval):
                     eval_result += tr_eval[word[0]]
                 print eval_result
-                flex_vector.append([eval_result])
-            else:  # using counts trie
-                counts = []
+                flex_matrix.append([eval_result])
+            else:  # using trinucleotide_counts trie
+                trinucleotide_counts = []
                 tr_count = trie.trie()
                 for key in trinucleotide_words:
                     tr_count[key] = 0
@@ -620,7 +780,7 @@ def get_promoter_region_flex_vector(hits, is_eval_f):
                     # print "Complement:", compl_word, ", count: ", tr_count[compl_word]
                     count = tr_count[word] + tr_count[compl_word]
                     # print "Count:", count
-                    counts.append(count)
-                # print "Counts:", counts
-                flex_vector.append(counts)
-    return flex_vector
+                    trinucleotide_counts.append(count)
+                # print "Counts:", trinucleotide_counts
+                flex_matrix.append(trinucleotide_counts)
+    return flex_matrix
