@@ -1,4 +1,4 @@
-from DNAshapedTFBS_commonUtils import *
+from DNAshapedTFBS_common_utils import *
 from DNAshapedTFBS_constants import *
 
 

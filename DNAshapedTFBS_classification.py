@@ -5,15 +5,19 @@
 """
 
 # LIBRARY IMPORTS
+import numpy as np
+import pandas as pd
+
 from sklearn.externals import joblib
-from DNAshapedTFBS_argsParsing import *
-from DNAshapedTFBS_featureVectors import *
-from DNAshapedTFBS_commonUtils import *
-from DNAshapedTFBS_constants import *
 from sklearn_gbmi import *
 
+from DNAshapedTFBS_argsParsing import *
+from DNAshapedTFBS_feature_vectors import *
+from DNAshapedTFBS_data_io import *
+from DNAshapedTFBS_roc_prc_plots import *
 # Local environment config
 # TODO: Test if TFFM is installed instead of using local env.
+
 PATH = os.path.dirname(os.path.realpath(__file__))
 sys.path.append('{0}/TFFM/'.format(PATH))
 
@@ -287,7 +291,7 @@ def k_fold_classification(argu, feature_vector_type, seq_feature_type, data, lab
     import matplotlib.pyplot as plt
     from itertools import cycle
 
-    from sklearn.metrics import roc_curve, auc, precision_recall_curve
+    from sklearn.metrics import roc_curve, precision_recall_curve
 
     """ Run Kfold classification on a machine learning classifier """
 
