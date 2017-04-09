@@ -8,8 +8,6 @@ from DNAshapedTFBS_classification import dna_shape_and_binary_apply_classifier
 from DNAshapedTFBS_classification import custom_apply_classifier
 from DNAshapedTFBS_classification import custom_train_and_validate_classifier
 
-# TODO: change 2nd order nargs to 4 where appropriate when we re-download MGW2
-
 
 def pssm_train_args_parsing(subparsers):
     """ Train the PSSM + DNA shape classifier. """

@@ -13,3 +13,4 @@ ghmm/
 *foreground/*
 561_execution/PFMs/*
 561_execution/experiments/*
+561_execution/experiments_bug_test/*

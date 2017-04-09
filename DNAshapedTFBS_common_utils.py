@@ -185,6 +185,21 @@ def find_pssm_hits(pssm, seq_file, is_foreground):
         # see how many records it sees directly reading from FASTA
         # count = count + 1
         # print(count)
+        unambiguousDNA_char_set = {'A', 'C', 'G', 'T'}
+        record_str = str(record.seq)
+        print MIN_SEQUENCE_LENGTH
+        print record_str
+        if len(record_str) < MIN_SEQUENCE_LENGTH:
+            print "TOO SHORT: ", len(record_str)
+            continue
+        has_invalid_chr = False
+        for c in record_str:
+            has_invalid_chr = True if c.upper() not in unambiguousDNA_char_set else False
+            if has_invalid_chr:
+                print "INVALID CHARACTER: ", c.upper()
+                break
+        if has_invalid_chr:
+            continue
         record.seq.alphabet = unambiguousDNA()
         scores = [(pos, ((score - pssm.min) / (pssm.max - pssm.min)))
                   for pos, score in pssm.search(record.seq, pssm.min) if not
@@ -291,7 +306,6 @@ def get_motif_dna_shapes_matrix(motif_hits, bed_file, shape_first_order,
     peaks_pos = get_positions_from_bed(bed_file)
     with open(os.devnull, 'w') as devnull:
         tmp_file = output_extended_motif_hits(motif_hits, peaks_pos, extension)
-        # MODIFIED HERE TO REMOVE MGW2
         shapes = SHAPE_FEATURE_NAMES
         dna_shapes_matrix = []
         for indx, bigwig in enumerate(bigwigs):

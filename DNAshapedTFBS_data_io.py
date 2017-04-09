@@ -184,23 +184,20 @@ def construct_feature_names_array(argu, motif_length):
 
 
 def output_classifier_feature_importances(argu, classifier, data, feature_names):
-    import datetime as dt
     import numpy as np
     importances = classifier.feature_importances_
     indices = np.argsort(importances)[::-1]
     with open(r'' + argu.output + '_FEATURE_IMPORTANCES.csv', 'w') as feature_importances_file:
         writer = csv.writer(feature_importances_file)
-        headers = ['Day - Hour', 'Protein', 'Feature_Name', 'Importance_Value']
+        headers = ['Protein', 'Feature_Name', 'Importance_Value']
         writer.writerow(headers)
     # NOTE: data.shape[1] below is a call to numpy for the dimension m of our n x m data matrix
     for row_number in range(data.shape[1]):
-        date_hour = '{}'.format(dt.datetime.today().day) + ' - ' + '{}'.format(dt.datetime.today().hour)
-        # date-hour, protein, featureName, importance
         try:
             protein_name = argu.protein
         except AttributeError:
             protein_name = argu.output
-        fields = [date_hour, protein_name, feature_names[indices[row_number] - 1], importances[indices[row_number]]]
+        fields = [protein_name, feature_names[indices[row_number] - 1], importances[indices[row_number]]]
         with open(r'' + argu.output + '_FEATURE_IMPORTANCES.csv', 'a') as feature_importances_file:
             writer = csv.writer(feature_importances_file)
             writer.writerow(fields)
