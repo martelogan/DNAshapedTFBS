@@ -187,16 +187,15 @@ def find_pssm_hits(pssm, seq_file, is_foreground):
         # print(count)
         unambiguousDNA_char_set = {'A', 'C', 'G', 'T'}
         record_str = str(record.seq)
-        print MIN_SEQUENCE_LENGTH
-        print record_str
+        # print record_str
         if len(record_str) < MIN_SEQUENCE_LENGTH:
-            print "TOO SHORT: ", len(record_str)
+            # print "TOO SHORT: ", len(record_str)
             continue
         has_invalid_chr = False
         for c in record_str:
             has_invalid_chr = True if c.upper() not in unambiguousDNA_char_set else False
             if has_invalid_chr:
-                print "INVALID CHARACTER: ", c.upper()
+                # print "INVALID CHARACTER: ", c.upper()
                 break
         if has_invalid_chr:
             continue
