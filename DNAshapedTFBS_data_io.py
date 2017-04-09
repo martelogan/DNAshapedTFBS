@@ -1,11 +1,16 @@
 import os
 import csv
 
+import pandas as pd
+import numpy as np
+
+from sklearn_gbmi import *
+
 from DNAshapedTFBS_common_utils import feature_vector_type_to_string, seq_feature_type_to_string, all_feature_names
 from DNAshapedTFBS_constants import *
 
 
-# FEATURE VECTORS I/O
+# EXPERIMENTAL RESULTS I/O
 
 
 def format_data_instance(argu, motif_length, data_instance):
@@ -144,8 +149,8 @@ def output_experimental_results(argu, predictions, motif_length, feature_vector_
 # FEATURE IMPORTANCE I/O
 
 
-def construct_feature_names_array(argu, motif_length, shape_feature_names):
-    print "\n\nOur shape features:", shape_feature_names
+def construct_feature_names_array(argu, motif_length):
+    print "\n\nOur shape features:", SHAPE_FEATURE_NAMES
     print "\n\nOur motif length:", motif_length
     is_eval_f = \
         True if argu.feature_vector_type == DNA_SHAPE_AND_FLEX_TYPE_CONSTANT \
@@ -154,7 +159,7 @@ def construct_feature_names_array(argu, motif_length, shape_feature_names):
     feature_names = []
     feature_vector_type = argu.feature_vector_type
     if feature_vector_type in SEQ_FEATURE_INCLUDED_CONSTANTS:
-        seq_feature = argu.seq_feature
+        seq_feature = argu.seq_feature_type
         if seq_feature == PSSM_SCORE_TYPE_CONSTANT:  # PSSM
             feature_names += ['PSSM_SCORE']
         elif seq_feature == TFFM_SCORE_TYPE_CONSTANT:  # TFFM
@@ -163,7 +168,7 @@ def construct_feature_names_array(argu, motif_length, shape_feature_names):
             feature_names += ['SEQUENCE_ENCODING']
 
     if feature_vector_type in DNA_SHAPE_FEATURE_TYPE_CONSTANTS:
-        for shapeName in shape_feature_names:
+        for shapeName in SHAPE_FEATURE_NAMES:
             for position in xrange(motif_length):
                 feature_names += [shapeName + ' - ' + str(position)]
 
@@ -238,3 +243,17 @@ def output_classifier_predictions(predictions, output):
                                   'sequence', 'proba'])))
 
 
+# INTERACTION TEST I/O
+
+
+def output_interaction_test_results(argu, fitted_classifier, test_data_feature_vectors,
+                                    motif_length, is_test_classification):
+    pds_dataset = pd.DataFrame(np.array(test_data_feature_vectors))
+    pds_dataset.columns = construct_feature_names_array(argu, motif_length)
+    h_stats = h_all_pairs(fitted_classifier, pds_dataset)
+    csv_title = '_test_interaction_stats.csv' if is_test_classification else '_applied_interaction_stats.csv'
+    with open(argu.output + csv_title, 'w') as csv_file:
+        writer = csv.writer(csv_file)
+        for key, value in h_stats.items():
+            # FEATURE NAME 1, FEATURE NAME 2, H_STATISTIC
+            writer.writerow([key[0], key[1], value])

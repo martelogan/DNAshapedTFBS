@@ -9,20 +9,16 @@ import numpy as np
 import pandas as pd
 
 from sklearn.externals import joblib
-from sklearn_gbmi import *
 
-from DNAshapedTFBS_argsParsing import *
+from DNAshapedTFBS_args_parsing import *
 from DNAshapedTFBS_feature_vectors import *
 from DNAshapedTFBS_data_io import *
-from DNAshapedTFBS_roc_prc_plots import *
+from DNAshapedTFBS_prc_roc_plots import *
 # Local environment config
 # TODO: Test if TFFM is installed instead of using local env.
 
 PATH = os.path.dirname(os.path.realpath(__file__))
 sys.path.append('{0}/TFFM/'.format(PATH))
-
-# TODO: UPDATE TO REFLECT CURRENTLY ACTIVE BIGWIGS (MISSING MGW2 RIGHT NOW)
-shape_feature_names = ['HelT', 'ProT', 'MGW', 'Roll', 'HelT2', 'MGW2', 'Roll2']
 
 
 # CLASSIFICATION HELPER FUNCTIONS
@@ -107,7 +103,7 @@ def custom_train_classifier(argu):
     """ Adapt classifier training to input args. """
     fg_hits = get_motif_hits(argu, argu.fg_fasta, True)
     bg_hits = get_motif_hits(argu, argu.bg_fasta, False)
-    train_classifier(argu, fg_hits, bg_hits, argu.feature_vector_type, argu.seq_feature)
+    train_classifier(argu, fg_hits, bg_hits, argu.feature_vector_type, argu.seq_feature_type)
 
 
 # ********************
@@ -136,18 +132,13 @@ def apply_classifier(argu, motif_hits, feature_vector_type, seq_feature_type):
     else:
         test_data_feature_vectors = get_feature_vectors(argu, feature_vector_type, seq_feature_type,
                                                         motif_hits, dna_shapes_matrix)
-
-    pds_dataset = pd.DataFrame(np.array(test_data_feature_vectors))
-    pds_dataset.columns = construct_feature_names_array(argu, len(motif_hits[0]), shape_feature_names)
-    h_stats = h_all_pairs(classifier, pds_dataset)
-    with open(argu.output + '_interaction_stats.csv', 'w') as csv_file:
-        writer = csv.writer(csv_file)
-        for key, value in h_stats.items():
-            writer.writerow([key[0],key[1], value])
-
-    # To output results, we must first associate our probas to the motif hits
+    # OUTPUT INTERACTION TEST RESULTS
+    output_interaction_test_results(argu, classifier, test_data_feature_vectors, len(motif_hits[0]), False)
+    # To output predictions, we must first associate our probas to the motif hits
     predictions = make_predictions(classifier, test_data_feature_vectors, motif_hits, argu.threshold)
+    # OUTPUT CLASSIFIER PREDICTIONS ON TEST DATA
     output_classifier_predictions(predictions, argu.output + '_predictions.txt')
+    # TODO: add PRC/ROC curve output
 
 
 def dna_shape_and_pssm_apply_classifier(argu):
@@ -195,7 +186,7 @@ def custom_apply_classifier(argu):
     # To be conservative: treat our test data as foreground and consider the best potential motifs
     motif_hits = get_motif_hits(argu, argu.in_fasta, True)
     if motif_hits:
-        apply_classifier(argu, motif_hits, argu.feature_vector_type, argu.seq_feature)
+        apply_classifier(argu, motif_hits, argu.feature_vector_type, argu.seq_feature_type)
     else:
         with open(argu.output, 'w') as stream:
             stream.write('No motif hits predicted\n')
@@ -211,7 +202,7 @@ def custom_train_and_validate_classifier(argu):
     from sklearn.model_selection import StratifiedKFold
 
     feature_vector_type = argu.feature_vector_type
-    seq_feature_type = argu.seq_feature
+    seq_feature_type = argu.seq_feature_type
 
     # ********************
     # TRAIN CLASSIFIER
@@ -232,14 +223,14 @@ def custom_train_and_validate_classifier(argu):
 
     # NOTE: DNA Shape Matrices might be null below if our classifier does not use them
     if seq_feature_type == BINARY_ENCODING_TYPE_CONSTANT:  # Binary encoding
-        foreground_data = get_feature_vectors(argu, argu.feature_vector_type, argu.seq_feature,
+        foreground_data = get_feature_vectors(argu, argu.feature_vector_type, argu.seq_feature_type,
                                               encode_hits(fg_hits), fg_dna_shapes_matrix)
-        background_data = get_feature_vectors(argu, argu.feature_vector_type, argu.seq_feature,
+        background_data = get_feature_vectors(argu, argu.feature_vector_type, argu.seq_feature_type,
                                               encode_hits(bg_hits), bg_dna_shapes_matrix)
     else:  # some other feature vector type
-        foreground_data = get_feature_vectors(argu, argu.feature_vector_type, argu.seq_feature,
+        foreground_data = get_feature_vectors(argu, argu.feature_vector_type, argu.seq_feature_type,
                                               fg_hits, fg_dna_shapes_matrix)
-        background_data = get_feature_vectors(argu, argu.feature_vector_type, argu.seq_feature,
+        background_data = get_feature_vectors(argu, argu.feature_vector_type, argu.seq_feature_type,
                                               bg_hits, bg_dna_shapes_matrix)
 
     # TODO: add option to exclude below data curation
@@ -258,7 +249,7 @@ def custom_train_and_validate_classifier(argu):
 
     # Get array of active feature names
     motif_length = len(fg_hits[0])
-    feature_names = construct_feature_names_array(argu, motif_length, shape_feature_names)
+    feature_names = construct_feature_names_array(argu, motif_length)
 
     # GET PREDICTED BINDING PROBABILITY FOR EACH MOTIF HIT
     # TODO: add option to exclude this
@@ -271,6 +262,9 @@ def custom_train_and_validate_classifier(argu):
     # OUTPUT FEATURE IMPORTANCES RANKING FOR CURRENT PROTEIN ON FITTED CLASSIFIER
     output_classifier_feature_importances(argu, fitted_classifier, np.array(data), feature_names)
 
+    # OUTPUT INTERACTION TEST RESULTS
+    output_interaction_test_results(argu, fitted_classifier, data, motif_length, True)
+
     # EXECUTE KFOLD CROSS-VALIDATION
     # TODO: add option to exclude kfold
 
@@ -282,7 +276,7 @@ def custom_train_and_validate_classifier(argu):
     cv = StratifiedKFold(n_splits=5)
 
     # K_fold execution (outputs roc & prc curves by default)
-    k_fold_classification(argu, argu.feature_vector_type, argu.seq_feature,
+    k_fold_classification(argu, argu.feature_vector_type, argu.seq_feature_type,
                           data, labels, k_fold_classifier, cv)
 
 

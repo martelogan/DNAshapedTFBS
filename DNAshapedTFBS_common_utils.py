@@ -159,7 +159,7 @@ def get_jaspar_pssm(jaspar, bool_id=True):
 
 
 def get_motif_hits(argu, seq_file, is_foreground):
-    seq_feature_type = argu.seq_feature
+    seq_feature_type = argu.seq_feature_type
     if seq_feature_type == PSSM_SCORE_TYPE_CONSTANT \
             or seq_feature_type == BINARY_ENCODING_TYPE_CONSTANT:  # PSSM or Encoding
         if argu.jasparid:
@@ -291,10 +291,8 @@ def get_motif_dna_shapes_matrix(motif_hits, bed_file, shape_first_order,
     peaks_pos = get_positions_from_bed(bed_file)
     with open(os.devnull, 'w') as devnull:
         tmp_file = output_extended_motif_hits(motif_hits, peaks_pos, extension)
-        # TODO: put MGW2 back here
         # MODIFIED HERE TO REMOVE MGW2
-        shapes = ['HelT', 'ProT', 'MGW', 'Roll', 'HelT2', 'ProT2',
-                  'Roll2']
+        shapes = SHAPE_FEATURE_NAMES
         dna_shapes_matrix = []
         for indx, bigwig in enumerate(bigwigs):
             if bigwig:
@@ -309,10 +307,10 @@ def get_motif_dna_shapes_matrix(motif_hits, bed_file, shape_first_order,
                     dna_shapes_matrix.append(get_score_of_dna_shape(out_file, shapes[indx], scaled))
                 else:
                     dna_shapes_matrix.append(get_score_of_dna_shape(out_file, shapes[indx]))
-        subprocess.call(['rm', '-f', '{0}.HelT'.format(tmp_file),
-                         '{0}.MGW'.format(tmp_file), '{0}.ProT'.format(tmp_file),
-                         '{0}.Roll'.format(tmp_file), '{0}.HelT2'.format(tmp_file),
-                         '{0}.ProT2'.format(tmp_file), '{0}.Roll2'.format(tmp_file), tmp_file])
+        subprocess.call(['rm', '-f', '{0}.HelT'.format(tmp_file), '{0}.ProT'.format(tmp_file),
+                         '{0}.MGW'.format(tmp_file), '{0}.Roll'.format(tmp_file),
+                         '{0}.HelT2'.format(tmp_file), '{0}.ProT2'.format(tmp_file),
+                         '{0}.MGW2'.format(tmp_file), '{0}.Roll2'.format(tmp_file), tmp_file])
 
         return dna_shapes_matrix
 

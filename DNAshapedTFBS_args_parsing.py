@@ -351,10 +351,10 @@ def custom_train_args_parsing(subparsers):
                           dest='shape_first_order', action='store', nargs=4,
                           help=help_str)
     help_str = 'List of 2nd-order bigWig files as\n'
-    help_str += '-2 HelT2 ProT2 Roll2'
+    help_str += '-2 HelT2 ProT2 MGW2 Roll2'
     help_str += ' (note that we assume such an order)'
     parser_t.add_argument('-2', '--2ndorder', required=False, type=str,
-                          dest='shape_second_order', action='store', nargs=3,
+                          dest='shape_second_order', action='store', nargs=4,
                           default=[], help=help_str)
     parser_t.add_argument('-n', '--scaled', required=False, dest='scaled',
                           action='store_true', default=False,
@@ -374,14 +374,26 @@ def custom_train_args_parsing(subparsers):
     help_str = 'Type of DNA sequence feature to consider\n'
     help_str += '(0 = PSSM | 1 = TFFM | 2 = 4bit)'
     help_str += ' (default : 0).'
-    parser_t.add_argument('-s', '--seq_feature', required=False, type=int,
-                          dest='seq_feature', action='store', default=0,
+    parser_t.add_argument('-s', '--seq_feature_type', required=False, type=int,
+                          dest='seq_feature_type', action='store', default=0,
                           help=help_str)
     help_str = 'Are we evaluating flexibility with a wrapper function?\n'
     help_str += '(0 = False | 1 = True)'
     help_str += ' (default : 0).'
     parser_t.add_argument('-E', '--is_eval_f', required=False, type=int,
                           dest='is_eval_f', action='store', default=0,
+                          help=help_str)
+    help_str = 'Optional experiment name (prepended to cumulative csvs)'
+    parser_t.add_argument('-N', '--exp_name', required=False, type=str,
+                          dest='exp_name', action='store', default='',
+                          help=help_str)
+    help_str = 'Optional background name (prepended to cumulative csvs)'
+    parser_t.add_argument('-Q', '--background_type', required=False, type=str,
+                          dest='background_type', action='store', default='',
+                          help=help_str)
+    help_str = 'Optional protein name (-o value will be used if not specified)'
+    parser_t.add_argument('-P', '--protein', required=False, type=str,
+                          dest='protein', action='store', default='',
                           help=help_str)
     parser_t.set_defaults(func=custom_train_classifier)
 
@@ -421,7 +433,7 @@ def custom_apply_args_parsing(subparsers):
     help_str += '-2 HelT2 ProT2 MGW2 Roll2'
     help_str += ' (note that we assume such an order)'
     parser_a.add_argument('-2', '--2ndorder', required=False, type=str,
-                          dest='shape_second_order', action='store', nargs=3,
+                          dest='shape_second_order', action='store', nargs=4,
                           default=[], help=help_str)
     parser_a.add_argument('-n', '--scaled', required=False, dest='scaled',
                           action='store_true', default=False,
@@ -444,14 +456,26 @@ def custom_apply_args_parsing(subparsers):
     help_str = 'Type of DNA sequence feature to consider\n'
     help_str += '(0 = PSSM | 1 = TFFM | 2 = 4bit)'
     help_str += ' (default : 0).'
-    parser_a.add_argument('-s', '--seq_feature', required=False, type=int,
-                          dest='seq_feature', action='store', default=0,
+    parser_a.add_argument('-s', '--seq_feature_type', required=False, type=int,
+                          dest='seq_feature_type', action='store', default=0,
                           help=help_str)
     help_str = 'Are we evaluating flexibility with a wrapper function?\n'
     help_str += '(0 = False | 1 = True)'
     help_str += ' (default : 0).'
     parser_a.add_argument('-E', '--is_eval_f', required=False, type=int,
                           dest='is_eval_f', action='store', default=0,
+                          help=help_str)
+    help_str = 'Optional experiment name (prepended to cumulative csvs)'
+    parser_a.add_argument('-N', '--exp_name', required=False, type=str,
+                          dest='exp_name', action='store', default='',
+                          help=help_str)
+    help_str = 'Optional background name (prepended to cumulative csvs)'
+    parser_a.add_argument('-Q', '--background_type', required=False, type=str,
+                          dest='background_type', action='store', default='',
+                          help=help_str)
+    help_str = 'Optional protein name (-o value will be used if not specified)'
+    parser_a.add_argument('-P', '--protein', required=False, type=str,
+                          dest='protein', action='store', default='',
                           help=help_str)
     parser_a.set_defaults(func=custom_apply_classifier)
 
@@ -491,10 +515,10 @@ def custom_train_and_validate_args_parsing(subparsers):
                           dest='shape_first_order', action='store', nargs=4,
                           help=help_str)
     help_str = 'List of 2nd-order bigWig files as\n'
-    help_str += '-2 HelT2 ProT2 Roll2'
+    help_str += '-2 HelT2 ProT2 MGW2 Roll2'
     help_str += ' (note that we assume such an order)'
     parser_t.add_argument('-2', '--2ndorder', required=False, type=str,
-                          dest='shape_second_order', action='store', nargs=3,
+                          dest='shape_second_order', action='store', nargs=4,
                           default=[], help=help_str)
     parser_t.add_argument('-n', '--scaled', required=False, dest='scaled',
                           action='store_true', default=False,
@@ -514,8 +538,8 @@ def custom_train_and_validate_args_parsing(subparsers):
     help_str = 'Type of DNA sequence feature to consider\n'
     help_str += '(0 = PSSM | 1 = TFFM | 2 = 4bit)'
     help_str += ' (default : 0).'
-    parser_t.add_argument('-s', '--seq_feature', required=False, type=int,
-                          dest='seq_feature', action='store', default=0,
+    parser_t.add_argument('-s', '--seq_feature_type', required=False, type=int,
+                          dest='seq_feature_type', action='store', default=0,
                           help=help_str)
     help_str = 'Are we evaluating flexibility with a wrapper function?\n'
     help_str += '(0 = False | 1 = True)'
@@ -527,9 +551,8 @@ def custom_train_and_validate_args_parsing(subparsers):
     parser_t.add_argument('-N', '--exp_name', required=False, type=str,
                           dest='exp_name', action='store', default='',
                           help=help_str)
-    parser_t.set_defaults(func=custom_train_and_validate_classifier)
     help_str = 'Optional background name (prepended to cumulative csvs)'
-    parser_t.add_argument('-Q', '--back_type', required=False, type=str,
+    parser_t.add_argument('-Q', '--background_type', required=False, type=str,
                           dest='background_type', action='store', default='',
                           help=help_str)
     help_str = 'Optional protein name (-o value will be used if not specified)'
