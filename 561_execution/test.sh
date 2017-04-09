@@ -23,12 +23,15 @@ declare -a associated_feature_vector_constants=(0 1 2)
 # mapped experiment_type index -> seq_feature_constant (referencing DNAshapedTFBS_constants.py)
 declare -a associated_seq_feature_type_constants=(0 0 0)
 
-declare -a background_types=("random_hg19" "matched_percent_gc_GM12878" "dinucleotide_shuffled_GM12878" "matched_percent_gc_K562" "uniform_percent_gc_GM12878")
+#declare -a background_types=("random_hg19" "matched_percent_gc_GM12878" "dinucleotide_shuffled_GM12878" "matched_percent_gc_K562" "uniform_percent_gc_GM12878")
+declare -a background_types=("random_hg19" "matched_percent_gc_GM12878" "dinucleotide_shuffled_GM12878" "matched_percent_gc_K562")
 
 # Proteins to execute (uses uncommented)
 #declare -a proteins=("HSF1" "BARHL2" "NR2C2" "ZEB1" "ELK4" "NFIC" "POU2F2" "PRDM1" "RFX5" "TEAD1" "TCF3" "PAX5" "ESR1" "ZNF143" "BHLHE40" "REST" "TEAD4" "NR3C1" "TCF7L2" "ELF1" "NFE2" "NFKB1" "ETS1" "E2F1" "EBF1" "E2F4" "CEBPB" "EGR1" "ZNF263" "CTCF")
 #declare -a proteins=("NFIC")
-declare -a protein_names=("HSF1")
+#declare -a protein_names=("HSF1")
+# BELOW ARRAY IS FOR 680 EXECUTION
+declare -a protein_names=("PU1" "ZNF143" "YY1" "ZEB1" "REST" "CTCF" "EGR1" "BHLHE40" "CEBPB" "ELF1" "v-JUN" "PRDM1" "ZNF263" "SREBF1" "ELK4")
 
 experiment_type_index=$((0))
 for experiment_type in "${experiment_types[@]}"
@@ -48,7 +51,7 @@ do
             -b "$EXPERIMENTS_PATH"/"$experiment_name"/background/fasta/"$protein_name".fa \
             -B "$EXPERIMENTS_PATH"/"$experiment_name"/background/bed/"$protein_name" \
             -1 $helt $mgw $prot $roll -2 $helt2 $mgw2 $prot2 $roll2 -n \
-            --exp_name "$experiment_type" \
+            --exp_name "$experiment_name" \
             --protein "$protein_name" \
             --background_type "$background_type" \
             --feature_vector_type ${associated_feature_vector_constants[${experiment_type_index}]} \
@@ -63,7 +66,7 @@ do
 #            -b "$EXPERIMENTS_PATH"/"$experiment_name"/background/fasta/"$protein_name".fa \
 #            -B "$EXPERIMENTS_PATH"/"$experiment_name"/background/bed/"$protein_name" \
 #            -1 $helt $mgw $prot $roll -2 $helt2 $mgw2 $prot2 $roll2 -n \
-#            --exp_name "$experiment_type" \
+#            --exp_name "$experiment_name" \
 #            --protein "$protein_name" \
 #            --background_type "$background_type" \
 #            --feature_vector_type ${associated_feature_vector_constants[$experiment_type_index]} \
@@ -76,7 +79,7 @@ do
 #            -I "$EXPERIMENTS_PATH"/"$experiment_name"/foreground/bed/"$protein_name" \
 #            -c "$EXPERIMENTS_PATH"/"$experiment_name"/output/"$protein_name"/"$protein_name".pkl \
 #            -1 $helt $mgw $prot $roll -2 $helt2 $mgw2 $prot2 $roll2 -n \
-#            --exp_name "$experiment_type" \
+#            --exp_name "$experiment_name" \
 #            --protein "$protein_name" \
 #            --background_type "$background_type" \
 #            --feature_vector_type ${associated_feature_vector_constants[$experiment_type_index]} \
