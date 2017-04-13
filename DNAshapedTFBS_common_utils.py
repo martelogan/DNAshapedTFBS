@@ -367,7 +367,8 @@ def get_promoter_region_flex_matrix(motif_hits, is_eval_f):
     all_trinucleotide_words = []
     if is_eval_f:  # eval function trie
         tr_eval = trie.trie()
-        bending_propensities = DNASE1_BENDING_PROPENSITIES
+        # TODO: parametrize trinucleotide scale
+        bending_propensities = YOUNGS_BENDING_PROPENSITIES
         for i in xrange(0, len(flexibility_scale_words)):
             bending_propensity = bending_propensities[i]
             word = flexibility_scale_words[i]
@@ -386,7 +387,7 @@ def get_promoter_region_flex_matrix(motif_hits, is_eval_f):
             hit_seq = hit.seq_record.seq
             # print "Sequence length:", len(hit_seq)
             # print "(hit_start, hit_end) =", (hit.start, hit.end)
-            ext_start, ext_end = seq_splice(hit_seq, hit.start, hit.end, 50)
+            ext_start, ext_end = seq_splice(hit_seq, hit.start, hit.end, FLEX_EXTENSION_LENGTH)
             # print "Hit_seq:", hit_seq, "(start, end) =", (ext_start, ext_end)
             ext_seq = str(hit_seq[ext_start:ext_end + 1].upper())
             # print "Ext_seq:", ext_seq
@@ -394,7 +395,7 @@ def get_promoter_region_flex_matrix(motif_hits, is_eval_f):
                 eval_result = 0.0
                 for word in triefind.find(ext_seq, tr_eval):
                     eval_result += tr_eval[word[0]]
-                print eval_result
+                eval_result /= float(len(ext_seq))
                 flex_matrix.append([eval_result])
             else:  # using trinucleotide_counts trie
                 trinucleotide_counts = []

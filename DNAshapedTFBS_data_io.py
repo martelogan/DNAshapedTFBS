@@ -15,7 +15,7 @@ from DNAshapedTFBS_constants import *
 
 def format_data_instance(argu, motif_length, data_instance):
     is_eval_f = \
-        True if argu.feature_vector_type == DNA_SHAPE_AND_FLEX_TYPE_CONSTANT \
+        True if argu.feature_vector_type in FLEXIBILITY_TYPE_CONSTANTS \
         and argu.is_eval_f else False
 
     formatted_data_instance = [MISSING_DATA_STRING] * ALL_FEATURES_COUNT
