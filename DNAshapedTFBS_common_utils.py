@@ -367,7 +367,7 @@ def get_promoter_region_flex_matrix(motif_hits, is_eval_f):
     all_trinucleotide_words = []
     if is_eval_f:  # eval function trie
         tr_eval = trie.trie()
-        bending_propensities = TRINUC_BENDING_PROPENSITIES
+        bending_propensities = DNASE1_BENDING_PROPENSITIES
         for i in xrange(0, len(flexibility_scale_words)):
             bending_propensity = bending_propensities[i]
             word = flexibility_scale_words[i]

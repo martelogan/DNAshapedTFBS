@@ -3,7 +3,7 @@
 export PYTHONPATH=$PYTHONPATH:./
 EXPERIMENTS_PATH=experiments
 # MODIFY BELOW PATH TO LOCAL 'hg19' DATA DIRECTORY
-hg19=/media/logan/Positron/TFBS_Research/hg19;
+hg19=/media/Shared_Data/TFBS_Research/hg19;
 helt=$hg19/hg19.HelT.bigWig;
 mgw=$hg19/hg19.MGW.bigWig;
 prot=$hg19/hg19.ProT.bigWig;
@@ -17,11 +17,17 @@ roll2=$hg19/hg19.Roll.2nd.wig.bw;
 
 # EXPERIMENTS TO EXECUTE (COMBINATIONS = EXPERIMENT_TYPES * BACKGROUND_TYPES)
 
-declare -a experiment_types=("pssm_dna_shape_only" "pssm_flex_only" "pssm_dna_shape_and_flex")
+# TODO: remove temp execution
+declare -a experiment_types=("pssm_dna_shape_and_flex")
+declare -a associated_feature_vector_constants=(2)
+declare -a associated_seq_feature_type_constants=(0)
+
+#declare -a experiment_types=("pssm_dna_shape_only" "pssm_flex_only" "pssm_dna_shape_and_flex")
+
 # mapped experiment_type index -> feature_vector_constant (referencing DNAshapedTFBS_constants.py)
-declare -a associated_feature_vector_constants=(0 1 2)
+#declare -a associated_feature_vector_constants=(0 1 2)
 # mapped experiment_type index -> seq_feature_constant (referencing DNAshapedTFBS_constants.py)
-declare -a associated_seq_feature_type_constants=(0 0 0)
+#declare -a associated_seq_feature_type_constants=(0 0 0)
 
 # THE "I have no life" EXECUTION
 #declare -a background_types=("random_hg19" "matched_percent_gc_GM12878" "dinucleotide_shuffled_GM12878" "matched_percent_gc_K562" "uniform_percent_gc_GM12878")
@@ -30,18 +36,30 @@ declare -a associated_seq_feature_type_constants=(0 0 0)
 #declare -a background_types=("random_hg19" "matched_percent_gc_GM12878" "dinucleotide_shuffled_GM12878" "matched_percent_gc_K562")
 
 # THE "I want to have a life please..." EXECUTION
-declare -a background_types=("dinucleotide_shuffled_GM12878" "matched_percent_gc_GM12878")
+#declare -a background_types=("dinucleotide_shuffled_GM12878" "matched_percent_gc_GM12878")
+
+# TODO: remove temp execution
+declare -a background_types=("dinucleotide_shuffled_GM12878")
 
 # PROTEINS TO EXECUTE (uses uncommented)
 
 # 561 EXECUTION (ordered by size)
 #declare -a proteins=("HSF1" "BARHL2" "NR2C2" "ZEB1" "ELK4" "NFIC" "POU2F2" "PRDM1" "RFX5" "TEAD1" "TCF3" "PAX5" "ESR1" "ZNF143" "BHLHE40" "REST" "TEAD4" "NR3C1" "TCF7L2" "ELF1" "NFE2" "NFKB1" "ETS1" "E2F1" "EBF1" "E2F4" "CEBPB" "EGR1" "ZNF263" "CTCF")
 
-# SMALLEST PROTEIN BELOW
+# SMALLEST PROTEIN BELOW (from 561 execution)
 #declare -a protein_names=("HSF1")
 
 # BELOW ARRAY IS FOR 680 EXECUTION (ordered by size)
-declare -a protein_names=("BHLHE40" "ZEB1" "ELK4" "PRDM1" "CEBPB" "v-JUN" "ZNF143" "YY1" "REST" "ELF1" "ZNF263" "EGR1" "PU1" "CTCF")
+#declare -a protein_names=("BHLHE40" "ZEB1" "ELK4" "PRDM1" "CEBPB" "v-JUN" "ZNF143" "YY1" "REST" "ELF1" "ZNF263" "EGR1" "PU1" "CTCF")
+
+# BELOW ARRAY IS THE TRUNCATED 680 EXECUTION (second batch of desired protein data)
+#declare -a protein_names=("ELF1" "PU1")
+
+#TODO: remove temp execution
+declare -a protein_names=("PU1")
+
+# BELOW ARRAY IS THE LARGEST PROTEINS 680 EXECUTION (last batch of desired protein data)
+#declare -a protein_names=("YY1" "REST" "ZNF263" "EGR1" "CTCF")
 
 # BELOW ARRAY IS FOR EXPERIMENTS BUG TESTING (must modify EXPERIMENTS_PATH to experiments_bug_testing)
 #declare -a protein_names=("PAX5")
