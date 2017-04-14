@@ -17,14 +17,14 @@ roll2=$hg19/hg19.Roll.2nd.wig.bw;
 
 # EXPERIMENTS TO EXECUTE (COMBINATIONS = EXPERIMENT_TYPES * BACKGROUND_TYPES)
 
-declare -a experiment_types=("pssm_youngs_mod_only" "pssm_dna_shape_and_youngs_mod")
+declare -a experiment_types=("pssm_dna_shape_and_youngs_mod")
 
 # mapped experiment_type index -> feature_vector_constant (referencing DNAshapedTFBS_constants.py)
-declare -a associated_feature_vector_constants=(1 2)
+declare -a associated_feature_vector_constants=(2)
 # mapped experiment_type index -> flex_eval_constant (ie. is_flex_eval bit)
-declare -a associated_flex_eval_type_constants=(1 1)
+declare -a associated_flex_eval_type_constants=(1)
 # mapped experiment_type index -> seq_feature_constant (referencing DNAshapedTFBS_constants.py)
-declare -a associated_seq_feature_type_constants=(0 0)
+declare -a associated_seq_feature_type_constants=(0)
 
 # THE "I have no life" EXECUTION
 #declare -a background_types=("random_hg19" "matched_percent_gc_GM12878" "dinucleotide_shuffled_GM12878" "matched_percent_gc_K562" "uniform_percent_gc_GM12878")
@@ -33,7 +33,7 @@ declare -a associated_seq_feature_type_constants=(0 0)
 #declare -a background_types=("random_hg19" "matched_percent_gc_GM12878" "dinucleotide_shuffled_GM12878" "matched_percent_gc_K562")
 
 # THE "I want to have a life please..." EXECUTION
-declare -a background_types=("dinucleotide_shuffled_GM12878" "matched_percent_gc_GM12878")
+declare -a background_types=("dinucleotide_shuffled_GM12878")
 
 # PROTEINS TO EXECUTE (uses uncommented)
 
@@ -47,7 +47,7 @@ declare -a background_types=("dinucleotide_shuffled_GM12878" "matched_percent_gc
 #declare -a protein_names=("BHLHE40" "ZEB1" "ELK4" "PRDM1" "CEBPB" "v-JUN" "ZNF143" "YY1" "REST" "ELF1" "ZNF263" "EGR1" "PU1" "CTCF")
 
 # BELOW ARRAY IS THE TRUNCATED 680 EXECUTION (modify as needed)
-declare -a protein_names=("ZEB1" "ELK4" "PRDM1" "ZNF143" "ELF1" "PU1")
+declare -a protein_names=("PU1")
 
 # BELOW ARRAY IS THE LARGEST PROTEINS 680 EXECUTION (last batch of desired protein data)
 #declare -a protein_names=("YY1" "REST" "ZNF263" "EGR1" "CTCF")

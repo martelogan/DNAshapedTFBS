@@ -153,7 +153,7 @@ def construct_feature_names_array(argu, motif_length):
     print "\n\nOur shape features:", SHAPE_FEATURE_NAMES
     print "\n\nOur motif length:", motif_length
     is_eval_f = \
-        True if argu.feature_vector_type == DNA_SHAPE_AND_FLEX_TYPE_CONSTANT \
+        True if argu.feature_vector_type in FLEXIBILITY_TYPE_CONSTANTS \
                 and argu.is_eval_f else False
 
     feature_names = []
